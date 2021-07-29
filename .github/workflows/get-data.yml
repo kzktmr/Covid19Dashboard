@@ -26,4 +26,5 @@ jobs:
       - name: Install packages 
         run: |
           install.packages(c("tidyverse", "ckanr"))
-        shell: Rscript {0}
+      - name: Download the data
+        run: Rscript get-data.R
