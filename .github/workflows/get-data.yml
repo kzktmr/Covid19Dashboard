@@ -29,3 +29,9 @@ jobs:
         shell: Rscript {0}
       - name: Download the data
         run: Rscript get-data.R
+      - name: Commit Results
+        run: |
+          git add data/*.csv
+          git commit -am "Data updated" || echo "No changes to commit"
+          git push origin || echo "No changes to commit"
+          

@@ -12,6 +12,6 @@ tmp <-
   read_csv(res$url, 
            skip = 1, col_types = "___D_cccl__",
            col_names = c("date", "address", "age", "sex", "untraceable")) %>% 
-  filter(!is.na(date))
+  filter(!is.na(date), date >= as.Date("2021-01-01") - 7)
 
 write_csv(tmp, "data/patients.csv")
