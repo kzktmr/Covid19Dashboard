@@ -8,10 +8,17 @@ ckanr_setup(url = "https://ckan.open-governmentdata.org/")
 # 福岡県　新型コロナウイルス感染症　陽性者発表情報
 res <- resource_show("0430a12e-568c-4a6a-bed8-51621f47c6e5")
 
-tmp <- 
-  read_csv(res$url, 
-           skip = 1, col_types = "___D_cccl__",
-           col_names = c("date", "address", "age", "sex", "untraceable")) %>% 
+tmp <- read_csv(res$url, skip = 1, col_types = "___D_cccl__",
+                col_names = c("date", "address", "age", "sex", "untraceable")) %>% 
   filter(!is.na(date), date >= as.Date("2021-01-01") - 7)
-
+  
 write_csv(tmp, "data/patients.csv")
+
+# 福岡県　新型コロナウイルス感染症　新規陽性者数
+res <- resource_show("bd25a096-b060-428a-bc85-91c1715fc540")
+
+tmp <- read_csv(res$url, skip = 1, col_types = "___D_dd", 
+                col_names = c("date", "detected", "detected_cum")) %>% 
+  filter(date >= as.Date("2021-01-01") - 7)
+
+write_csv(tmp, "data/newlycases.csv")
