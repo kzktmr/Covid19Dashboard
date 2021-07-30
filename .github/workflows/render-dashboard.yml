@@ -20,7 +20,7 @@ jobs:
           install.packages("rmarkdown")
         shell: Rscript {0}
       - name: Render Dashboard
-        run: Rscript -e 'rmarkdown::render("index.Rmd")'
+        run: Rscript -e 'rmarkdown::render("index.Rmd", output_dir = "docs")'
       - name: Commit Results
         run: |
           git add docs/
