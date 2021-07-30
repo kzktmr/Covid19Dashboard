@@ -11,6 +11,7 @@ output:
 library(tidyr)
 library(dplyr)
 library(readr)
+library(stringr)
 library(lubridate)
 library(RcppRoll)
 library(flexdashboard)
