@@ -60,6 +60,43 @@ valueBox(sprintf("%.1f", detected_value),
          )
 ```
 
+### 感染経路不明割合
+```{r}
+untraceable <- patients %>% 
+  group_by(date, untraceable) %>% summarise(n = n()) %>% ungroup() %>% 
+  mutate(untraceable = if_else(is.na(untraceable), "traceable", "untraceable")) %>% 
+  pivot_wider(names_from = untraceable, values_from = n, values_fill = 0) %>% 
+  complete(date = full_seq(date, 1), fill = list(untraceable = 0, traceable = 0)) %>% 
+  mutate(n = untraceable + traceable, sum_n = roll_sumr(n, 7),
+         sum_u = roll_sumr(untraceable, 7), value = sum_u / sum_n * 100,
+         increase = value > lag(value)) %>% 
+  select(date, value, increase) %>% filter(date >= "2021-01-01")
+untraceable_value <- untraceable %>% last_value(value)
+untraceable_increase <- untraceable %>% last_value(increase)
+valueBox(sprintf("%.1f", untraceable_value), 
+         caption = "感染経路不明割合（％）",
+         icon = ifelse(untraceable_increase, "fa-arrow-up", "fa-arrow-down"),
+         color = ifelse(untraceable_value >= 50, "danger", "primary"))
+```
+
+### 検査等陽性率
+```{r}
+positive_ratio <- newlycases %>% 
+  mutate(detected_sum = roll_sumr(detected, 7)) %>% left_join(inspection) %>% 
+  mutate(inspected_sum = roll_sumr(inspected, 7),
+         value = detected_sum / inspected_sum * 100,
+         increase = value > lag(value)) %>% 
+  select(date, value, increase) %>% filter(date >= "2021-01-01")
+positive_ratio_value <- positive_ratio %>% last_value(value)
+positive_ratio_increase <- positive_ratio %>% last_value(increase)
+valueBox(sprintf("%.2f", positive_ratio_value), 
+         caption = "検査等陽性率（％）",
+         icon = ifelse(positive_ratio_increase, "fa-arrow-up", "fa-arrow-down"),
+         color = ifelse(positive_ratio_value >= 10, "danger", 
+                        ifelse(positive_ratio_value >= 5, "warning", "primary"))
+         )
+```
+
 Row
 -----------------------------------------------------------------------
 
