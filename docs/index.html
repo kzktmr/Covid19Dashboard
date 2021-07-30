@@ -8,9 +8,9 @@
 
 
 
-<title>Untitled</title>
+<title>福岡県における新型コロナウイルス感染症の動向</title>
 
-<meta property="og:title" content="Untitled" />
+<meta property="og:title" content="福岡県における新型コロナウイルス感染症の動向" />
 
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
 
@@ -38,6 +38,8 @@ window.FlexDashboardComponents = [];
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
 <script src="site_libs/stickytableheaders-0.1.19/jquery.stickytableheaders.min.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 <style type="text/css">
 
 /*
@@ -815,7 +817,7 @@ html, body {
   
 </span>
 <span class="navbar-brand">
-  Untitled
+  福岡県における新型コロナウイルス感染症の動向
   <span class="navbar-author">
         </span>
 </span>
@@ -2622,17 +2624,20 @@ window.FlexDashboardComponents.push({
 
 <div id="dashboard-container">
 
-<div id="column" class="section level2" data-width="650">
-<h2 data-width="650">Column</h2>
-<div id="chart-a" class="section level3">
-<h3>Chart A</h3>
+<div id="ステージ判断指標" class="section level1">
+<h1>ステージ判断指標</h1>
+<div id="row" class="section level2">
+<h2>Row</h2>
+<div id="新規感染者数" class="section level3">
+<h3>新規感染者数</h3>
 <div class="knitr-options" data-fig-width="576" data-fig-height="460">
 
 </div>
+<p><span class="value-output" data-caption="直近1週間の10万人あたり新規感染者数（人）" data-icon="fa-arrow-up" data-color="bg-danger">31.2</span></p>
 </div>
 </div>
-<div id="column-1" class="section level2" data-width="350">
-<h2 data-width="350">Column</h2>
+<div id="row-1" class="section level2">
+<h2>Row</h2>
 <div id="chart-b" class="section level3">
 <h3>Chart B</h3>
 <div class="knitr-options" data-fig-width="576" data-fig-height="460">
@@ -2643,6 +2648,7 @@ window.FlexDashboardComponents.push({
 <h3>Chart C</h3>
 <div class="knitr-options" data-fig-width="576" data-fig-height="460">
 
+</div>
 </div>
 </div>
 </div>
@@ -2670,7 +2676,7 @@ $(document).ready(function () {
   FlexDashboard.init({
     theme: "cosmo",
     fillPage: true,
-    orientation: "columns",
+    orientation: "rows",
     storyboard: false,
     defaultFigWidth: 576,
     defaultFigHeight: 460,

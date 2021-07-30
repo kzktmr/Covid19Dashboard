@@ -1,25 +1,66 @@
 ---
-title: "Untitled"
+title: "福岡県における新型コロナウイルス感染症の動向"
 output: 
   flexdashboard::flex_dashboard:
-    orientation: columns
+    orientation: rows
     vertical_layout: fill
 ---
 
 ```{r setup, include=FALSE}
+# ライブラリ
+library(tidyr)
+library(dplyr)
+library(readr)
+library(lubridate)
+library(RcppRoll)
 library(flexdashboard)
+library(plotly)
+
+# 関数
+last_value <- function(dat, col){
+  col <- enquo(col)
+  dat %>% select(!!col) %>% tail(1) %>% pull()
+}
+md <- function(x){
+  str_c(month(x), "/", day(x))
+}
+
+# データ
+population <- read_csv("data/population.csv")
+newlycases <- read_csv("data/newlycases.csv")
+patients   <- read_csv("data/patients.csv")
+inspection <- read_csv("data/inspection.csv")
+situation  <- read_csv("data/situation.csv")
+sickbeds   <- read_csv("data/sickbeds.csv")
+
+# 定数
+pref_pop <- population %>% filter(name == "県") %>% pull()
 ```
 
-Column {data-width=650}
+ステージ判断指標
+=====================================  
+
+Row
 -----------------------------------------------------------------------
-
-### Chart A
-
+### 新規感染者数
 ```{r}
-
+detected <- newlycases %>% 
+  mutate(detected_sum = roll_sumr(detected, 7),
+         increase = detected_sum > lag(detected_sum),
+         value = detected_sum / pref_pop * 1e5) %>% 
+  filter(date >= "2021-01-01") %>% 
+  select(date, value, increase)
+detected_value <- detected %>% last_value(value)
+detected_increase <- detected %>% last_value(increase)
+valueBox(sprintf("%.1f", detected_value), 
+         caption = "直近1週間の10万人あたり新規感染者数（人）",
+         icon = ifelse(detected_increase, "fa-arrow-up", "fa-arrow-down"),
+         color = ifelse(detected_value >= 25, "danger", 
+                        ifelse(detected_value >= 15, "warning", "primary"))
+         )
 ```
 
-Column {data-width=350}
+Row
 -----------------------------------------------------------------------
 
 ### Chart B
