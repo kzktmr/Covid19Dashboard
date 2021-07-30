@@ -14,6 +14,7 @@ library(readr)
 library(stringr)
 library(lubridate)
 library(RcppRoll)
+library(ggplot2)
 library(flexdashboard)
 library(plotly)
 
@@ -154,3 +155,83 @@ valueBox(sprintf("%.1f", hospital_ratio_value),
          )
 ```
 
+Row
+-----------------------------------------------------------------------
+
+### 直近1週間の10万人あたり新規感染者数（人）
+
+```{r}
+detected_plot <- detected %>% 
+  ggplot(aes(x = date, y = value)) +
+  geom_hline(yintercept = 25, color = "red", alpha = 0.5) +
+  geom_hline(yintercept = 15, color = "orange", alpha = 0.5) +
+  geom_path(color = "darkblue") + theme_light() + ylim(0, NA) +
+  scale_x_date(labels = md, breaks = "1 month") +
+  theme(axis.title = element_blank())
+ggplotly(detected_plot)
+```
+
+### 感染経路不明割合（％）
+
+```{r}
+untraceable_plot <- untraceable %>% 
+  ggplot(aes(x = date, y = value)) +
+  geom_hline(yintercept = 50, color = "red", alpha = 0.5) +
+  geom_path(color = "darkblue") + theme_light() + 
+  scale_x_date(labels = md, breaks = "1 month") +
+  theme(axis.title = element_blank())
+ggplotly(untraceable_plot)
+```
+
+### 検査等陽性率（％）
+
+```{r}
+positive_ratio_plot <- positive_ratio %>% 
+  ggplot(aes(x = date, y = value)) +
+  geom_hline(yintercept = 10, color = "red", alpha = 0.5) +
+  geom_hline(yintercept = 5, color = "orange", alpha = 0.5) +
+  geom_path(color = "darkblue") + theme_light() + 
+  scale_x_date(labels = md, breaks = "1 month") +
+  theme(axis.title = element_blank())
+ggplotly(positive_ratio_plot)
+```
+
+Row
+-----------------------------------------------------------------------
+
+### 10万人あたり療養者数
+
+```{r}
+total_patient_plot <- total_patient %>% 
+  ggplot(aes(x = date, y = value)) +
+  geom_hline(yintercept = 30, color = "red", alpha = 0.5) +
+  geom_hline(yintercept = 20, color = "orange", alpha = 0.5) +
+  geom_path(color = "darkblue") + theme_light() + ylim(0, NA) +
+  scale_x_date(labels = md, breaks = "1 month") +
+  theme(axis.title = element_blank())
+ggplotly(total_patient_plot)
+```
+
+### 確保病床使用率（％）
+```{r}
+bed_occupancy_plot <- bed_occupancy %>% 
+  ggplot(aes(x = date, y = value)) +
+  geom_hline(yintercept = 50, color = "red", alpha = 0.5) +
+  geom_hline(yintercept = 20, color = "orange", alpha = 0.5) +
+  geom_path(color = "darkblue") + theme_light() + #ylim(0, NA) +
+  scale_x_date(labels = md, breaks = "1 month") +
+  theme(axis.title = element_blank())
+ggplotly(bed_occupancy_plot)
+```
+
+### 入院率（％）
+```{r}
+hospital_ratio_plot <- hospital_ratio %>% 
+  ggplot(aes(x = date, y = value)) +
+  geom_hline(yintercept = 40, color = "orange", alpha = 0.5) +
+  geom_hline(yintercept = 25, color = "red", alpha = 0.5) +
+  geom_path(color = "darkblue") + theme_light() + #ylim(0, NA) +
+  scale_x_date(labels = md, breaks = "1 month") +
+  theme(axis.title = element_blank())
+ggplotly(hospital_ratio_plot)
+```
