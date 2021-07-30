@@ -42,6 +42,7 @@ pref_pop <- population %>% filter(name == "県") %>% pull()
 
 Row
 -----------------------------------------------------------------------
+
 ### 新規感染者数
 ```{r}
 detected <- newlycases %>% 
@@ -100,15 +101,55 @@ valueBox(sprintf("%.2f", positive_ratio_value),
 Row
 -----------------------------------------------------------------------
 
-### Chart B
-
+### 療養者数
 ```{r}
-
+total_patient <-
+  situation %>% filter(str_detect(name, "者の数$")) %>% 
+  group_by(date) %>% summarise(value = sum(value)) %>% ungroup() %>% 
+  mutate(increase = value > lag(value),
+         value = value / pref_pop * 1e5) %>% drop_na() %>% 
+  select(date, value, increase) %>% filter(date >= "2021-01-01")
+total_patient_value <- total_patient %>% last_value(value)
+total_patient_increase <- total_patient %>% last_value(increase)
+valueBox(sprintf("%.1f", total_patient_value), 
+         caption = "10万人あたり療養者数（人）",
+         icon = ifelse(total_patient_increase, "fa-arrow-up", "fa-arrow-down"),
+         color = ifelse(total_patient_value >= 30, "danger", 
+                        ifelse(total_patient_value >= 20, "warning", "primary"))
+         )
 ```
 
-### Chart C
-
+### 確保病床使用率
 ```{r}
+bed_occupancy <- situation %>% 
+  filter(name == "うち確保病床の入院者数") %>% 
+  filter(date >= "2021-01-01") %>% left_join(sickbeds) %>% na.omit() %>% 
+  mutate(value = value / bed * 100, increase = value > lag(value))
+bed_occupancy_value = bed_occupancy %>% last_value(value)
+bed_occupancy_increase = bed_occupancy %>% last_value(increase)
+valueBox(sprintf("%.1f", bed_occupancy_value), 
+         caption = "確保病床使用率（％）",
+         icon = ifelse(bed_occupancy_increase, "fa-arrow-up", "fa-arrow-down"),
+         color = ifelse(bed_occupancy_value >= 50, "danger", 
+                        ifelse(bed_occupancy_value >= 20, "warning", "primary"))
+         )
+```
 
+### 入院率
+```{r}
+hospital_ratio <- situation %>% 
+  filter(str_detect(name, "者の数$")) %>% 
+  pivot_wider() %>% 
+  mutate(value = `入院中の者の数` / (`入院中の者の数` + `宿泊療養中の者の数` + `自宅待機等の者の数`) * 100,
+         increase = value > lag(value)) %>% 
+  filter(date >= "2021-01-01") %>% na.omit()
+hospital_ratio_value <- hospital_ratio %>% last_value(value)
+hospital_ratio_increase <- hospital_ratio %>% last_value(increase)
+valueBox(sprintf("%.1f", hospital_ratio_value), 
+         caption = "入院率（％）",
+         icon = ifelse(hospital_ratio_increase, "fa-arrow-up", "fa-arrow-down"),
+         color = ifelse(hospital_ratio_value <= 25, "danger", 
+                        ifelse(hospital_ratio_value <= 40, "warning", "primary"))
+         )
 ```
 
