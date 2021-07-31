@@ -350,7 +350,7 @@ ggplotly(positive_plot)
 
 ### PCR等検査件数（件）
 ```{r}
-inspection_plot <- exam %>% 
+inspection_plot <- inspection %>% 
   select(date, value = inspected) %>% 
   mutate(ma = roll_meanr(value, 7)) %>% 
   filter(date >= "2021-01-01") %>% 
