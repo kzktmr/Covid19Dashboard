@@ -4,6 +4,7 @@ author: "@kzktmr"
 output: 
   flexdashboard::flex_dashboard:
     social: [ "menu" ]
+    source_code: "https://github.com/kzktmr/Covid19Dashboard"
     orientation: rows
     vertical_layout: fill
 ---
