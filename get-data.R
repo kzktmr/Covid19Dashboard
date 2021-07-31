@@ -3,6 +3,8 @@ library(dplyr)
 library(tidyr)
 library(readr)
 library(ckanr)
+library(httr)
+library(ndjson)
 
 ckanr_setup(url = "https://ckan.open-governmentdata.org/")
 
@@ -79,3 +81,12 @@ tmp <- tibble(date = c(as.Date("2021-01-01"), Sys.Date())) %>%
                          date < "2021-07-02" ~ 1403,
                          TRUE ~ 1413))
 write_csv(tmp, "data/sickbeds.csv")
+
+# ワクチン接種状況
+tmp_file <- tempfile()
+
+GET("https://vrs-data.cio.go.jp/vaccination/opendata/latest/prefecture.ndjson") %>% 
+  content() %>% writeBin(tmp_file)
+tmp <- ndjson::stream_in(tmp_file) %>% filter(prefecture == "40") 
+
+write_csv(tmp, "data/vaccination.csv")
