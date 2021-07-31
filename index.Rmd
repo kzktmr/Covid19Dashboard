@@ -327,6 +327,8 @@ vaccination_rate_plot <- vaccination_rate %>%
 ggplotly(vaccination_rate_plot) %>% layout(legend = list(x = 0, y = 1))
 ```
 
+> 65歳未満の接種率は，15〜64歳の人口を基に計算しています。
+
 その他の指標①
 =====================================  
 
@@ -432,7 +434,7 @@ situation_plot <- situation %>%
 ggplotly(situation_plot) %>% layout(legend = list(x = 0, y = 1))
 ```
 
-### 年代別10万人あたり新規感染者数（人）
+### 直近1週間の年代別10万人あたり新規感染者数（人）
 ```{r}
 age_percapita_plot <- patients %>% 
   filter(age != "調査中", age != "-") %>% 
