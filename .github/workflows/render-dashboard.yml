@@ -26,6 +26,6 @@ jobs:
       - name: Commit Results
         run: |
           git add docs/
-          git commit -am "Data updated" || echo "No changes to commit"
+          git commit -am "Site rendered" || echo "No changes to commit"
           git push origin || echo "No changes to commit"
           

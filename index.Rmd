@@ -1,6 +1,5 @@
 ---
 title: "Fukuoka COVID-19 Dashboard"
-author: "@kzktmr"
 output: 
   flexdashboard::flex_dashboard:
     social: [ "menu" ]
