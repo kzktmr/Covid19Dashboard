@@ -392,7 +392,8 @@ young_rate_plot <- patients %>%
   group_by(date, age) %>% summarise(n = n()) %>% ungroup() %>% 
   pivot_wider(names_from = age, values_from = n, values_fill = 0) %>% 
   rowwise() %>% mutate(合計 = sum(c_across(-date))) %>% 
-  complete(date = full_seq(date, 1)) %>% replace_na(0) %>% 
+  complete(date = full_seq(date, 1)) %>% 
+  mutate(across(-date, replace_na, 0)) %>% 
   mutate(across(-date, roll_sumr, n = 7)) %>% 
   mutate(value = (`20代` + `30代`) / 合計 * 100) %>% 
   select(date, value) %>% filter(date >= "2021-01-01") %>% 
@@ -436,7 +437,8 @@ age_percapita_plot <- patients %>%
   filter(age != "調査中", age != "-") %>% 
   group_by(date, age) %>% summarise(n = n()) %>% ungroup() %>% 
   pivot_wider(names_from = age, values_from = n, values_fill = 0) %>% 
-  complete(date = full_seq(date, 1)) %>% replace_na(0) %>%  
+  complete(date = full_seq(date, 1)) %>%
+  mutate(across(-date, replace_na, 0)) %>% 
   mutate(across(-date, roll_sumr, n = 7)) %>% 
   filter(date >= "2021-01-01") %>% pivot_longer(-date) %>% 
   left_join(age_pop, by = c("name" = "age10")) %>% 
