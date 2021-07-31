@@ -28,13 +28,13 @@ md <- function(x){
 }
 
 # データ
-population <- read_csv("data/population.csv")
-newlycases <- read_csv("data/newlycases.csv")
-patients   <- read_csv("data/patients.csv")
-inspection <- read_csv("data/inspection.csv")
-situation  <- read_csv("data/situation.csv")
-sickbeds   <- read_csv("data/sickbeds.csv")
-
+population  <- read_csv("data/population.csv")
+newlycases  <- read_csv("data/newlycases.csv")
+patients    <- read_csv("data/patients.csv")
+inspection  <- read_csv("data/inspection.csv")
+situation   <- read_csv("data/situation.csv")
+sickbeds    <- read_csv("data/sickbeds.csv")
+vaccination <- read_csv("data/vaccination.csv")
 # 定数
 pref_pop <- population %>% filter(name == "県") %>% pull()
 ```
@@ -234,4 +234,89 @@ hospital_ratio_plot <- hospital_ratio %>%
   scale_x_date(labels = md, breaks = "1 month") +
   theme(axis.title = element_blank())
 ggplotly(hospital_ratio_plot)
+```
+
+ワクチン接種状況
+=====================================  
+
+```{r include=FALSE}
+vaccination_rate <- 
+  vaccination %>% filter(age != "UNK") %>% 
+  group_by(date, age, status) %>% 
+  summarise(count = sum(count), .groups = "keep") %>% 
+  ungroup(date) %>% 
+  mutate(cum_sum = cumsum(count)) %>% 
+  left_join(age_pop2) %>% 
+  mutate(ratio =  cum_sum/ pop * 100) %>% ungroup() %>% 
+  mutate(date = as.Date(date), 
+         age = factor(age, labels = c("65歳未満", "65歳以上")),
+         status = factor(status, labels = c("1回目", "2回目"))) %>% 
+  unite("status", age:status) %>% 
+  arrange(date) 
+```
+
+Row
+-----------------------------------------------------------------------
+
+### 接種率（65歳未満，1回目）
+```{r}
+under65_1st <- vaccination_rate %>% 
+  filter(status == "65歳未満_1回目") %>% last_value(ratio)
+gauge(sprintf("%.1f", under65_1st), min = 0, max = 100, symbol = '%')
+```
+
+### 接種率（65歳未満，2回目）
+```{r}
+under65_2nd <- vaccination_rate %>% 
+  filter(status == "65歳未満_2回目") %>% last_value(ratio)
+gauge(sprintf("%.1f", under65_2nd), min = 0, max = 100, symbol = '%')
+```
+
+### 接種率（65歳以上，1回目）
+```{r}
+over65_1st <- vaccination_rate %>% 
+  filter(status == "65歳以上_1回目") %>% last_value(ratio)
+gauge(sprintf("%.1f", over65_1st), min = 0, max = 100, symbol = '%')
+```
+
+### 接種率（65歳以上，2回目）
+```{r}
+over65_2nd <- vaccination_rate %>% 
+  filter(status == "65歳以上_2回目") %>% last_value(ratio)
+gauge(sprintf("%.1f", over65_2nd), min = 0, max = 100, symbol = '%')
+```
+
+Row
+-------------------------
+### 接種回数の推移
+```{r}
+vaccination_plot <- vaccination %>% 
+  group_by(date, age, status) %>% summarise(count = sum(count)) %>% ungroup() %>% 
+  mutate(date = as.Date(date), 
+         age = factor(age, labels = c("65歳未満", "65歳以上", "年齢不明")),
+         status = factor(status, labels = c("1回目", "2回目"))) %>% 
+  unite("status", age:status) %>% 
+  ggplot(aes(x = date, y = count)) +
+  geom_col(aes(fill = status)) +
+  scale_x_date(labels = md) +
+  scale_y_continuous(labels = scales::comma) +
+  scale_fill_brewer(palette = "Set2") +
+  theme_bw() +
+  theme(axis.title = element_blank(),
+        legend.title = element_blank())
+ggplotly(vaccination_plot) %>% layout(legend = list(x = 0, y = 1))
+```
+
+### 接種率の推移（％）
+```{r}
+vaccination_rate_plot <- vaccination_rate %>% 
+  ggplot(aes(x = date, y = ratio, color = status)) +
+  geom_line() +
+  scale_x_date(labels = md) +
+  scale_y_continuous(labels = scales::comma) +
+  scale_color_brewer(palette = "Set2") +
+  theme_bw() +
+  theme(axis.title = element_blank(),
+        legend.title = element_blank())
+ggplotly(vaccination_rate_plot) %>% layout(legend = list(x = 0, y = 1))
 ```
