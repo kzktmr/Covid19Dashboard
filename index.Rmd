@@ -437,8 +437,7 @@ age_percapita_plot <- patients %>%
   filter(age != "調査中", age != "-") %>% 
   group_by(date, age) %>% summarise(n = n()) %>% ungroup() %>% 
   pivot_wider(names_from = age, values_from = n, values_fill = 0) %>% 
-  complete(date = full_seq(date, 1), 
-           fill = set_names(as.list(rep(0, 11)), c("10歳未満", str_c(seq(10, 80, 10), "代"), "90代以上", "合計"))) %>% 
+  complete(date = full_seq(date, 1)) %>% replace_na(0) %>%  
   mutate(across(-date, roll_sumr, n = 7)) %>% 
   filter(date >= "2021-01-01") %>% pivot_longer(-date) %>% 
   left_join(age_pop, by = c("name" = "age10")) %>% 
