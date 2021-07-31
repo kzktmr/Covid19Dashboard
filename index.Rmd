@@ -35,8 +35,10 @@ inspection  <- read_csv("data/inspection.csv")
 situation   <- read_csv("data/situation.csv")
 sickbeds    <- read_csv("data/sickbeds.csv")
 vaccination <- read_csv("data/vaccination.csv")
+
 # 定数
 pref_pop <- population %>% filter(name == "県") %>% pull()
+age_pop2 <- tibble(age = c("-64", "65-"), pop = c(3046999, 1396860))
 ```
 
 ステージ判断指標
