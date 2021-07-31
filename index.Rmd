@@ -1,7 +1,9 @@
 ---
-title: "福岡県における新型コロナウイルス感染症の動向"
+title: "Fukuoka COVID-19 Dashboard"
+author: "@kzktmr"
 output: 
   flexdashboard::flex_dashboard:
+    social: [ "menu" ]
     orientation: rows
     vertical_layout: fill
 ---
@@ -35,6 +37,7 @@ inspection  <- read_csv("data/inspection.csv")
 situation   <- read_csv("data/situation.csv")
 sickbeds    <- read_csv("data/sickbeds.csv")
 vaccination <- read_csv("data/vaccination.csv")
+age_pop     <- read_csv("data/population_by_age.csv")
 
 # 定数
 pref_pop <- population %>% filter(name == "県") %>% pull()
@@ -321,4 +324,134 @@ vaccination_rate_plot <- vaccination_rate %>%
   theme(axis.title = element_blank(),
         legend.title = element_blank())
 ggplotly(vaccination_rate_plot) %>% layout(legend = list(x = 0, y = 1))
+```
+
+その他の指標①
+=====================================  
+
+Rows
+-------------------------------------
+
+### 新規陽性者数（人）
+```{r}
+positive_plot <- newlycases %>%
+  select(date, value = detected) %>% 
+  mutate(ma = roll_meanr(value, 7)) %>% 
+  filter(date >= as.Date("2021-01-01")) %>%
+  ggplot(aes(x = date, y = value)) +
+  geom_col(fill = "lightblue", width = 1) +
+  geom_line(aes(y = ma), color = "darkblue", linetype = "dotted") +
+  scale_x_date(labels = md, breaks = "1 month") +
+  theme_bw() +
+  theme(axis.title = element_blank(),
+        legend.title = element_blank())
+ggplotly(positive_plot)
+```
+
+### PCR等検査件数（件）
+```{r}
+inspection_plot <- exam %>% 
+  select(date, value = inspected) %>% 
+  mutate(ma = roll_meanr(value, 7)) %>% 
+  filter(date >= "2021-01-01") %>% 
+  ggplot(aes(x = date, y = value)) + 
+  geom_col(fill = "lightblue", width = 1) +
+  geom_line(aes(y = ma), color = "darkblue", linetype = "dotted") +
+  scale_x_date(labels = md, breaks = "1 month") +
+  scale_y_continuous(labels = scales::comma) +
+  theme_bw() +
+  theme(axis.title = element_blank(),
+        legend.title = element_blank())
+ggplotly(inspection_plot)
+```
+
+Rows
+-------------------------------------
+
+### 新規感染者数の先週今週比
+```{r}
+weel_ratio_plot <- newlycases %>% 
+  mutate(detected_sum = roll_sumr(detected, 7),
+         value = detected_sum / lag(detected_sum, 7)) %>% 
+  select(date, value) %>% 
+  filter(date >= as.Date("2021-01-01")) %>% 
+  ggplot(aes(x = date, y = value)) +
+  geom_hline(yintercept = 1, size = 0.25) +
+  geom_line(color = "darkblue") +
+  scale_x_date(labels = md, breaks = "1 month") +
+  theme_bw() +
+  theme(axis.title = element_blank(),
+        legend.title = element_blank())
+ggplotly(weel_ratio_plot)
+```
+
+### 新規感染者の若者割合（％）
+```{r}
+young_rate_plot <- patients %>% 
+  filter(age != "調査中", age != "-") %>% 
+  group_by(date, age) %>% summarise(n = n()) %>% ungroup() %>% 
+  pivot_wider(names_from = age, values_from = n, values_fill = 0) %>% 
+  rowwise() %>% mutate(合計 = sum(c_across(-date))) %>% 
+  complete(date = full_seq(date, 1), 
+           fill = set_names(as.list(rep(0, 11)), c("10歳未満", str_c(seq(10, 80, 10), "代"), "90代以上", "合計"))) %>% 
+  mutate(across(-date, roll_sumr, n = 7)) %>% 
+  mutate(value = (`20代` + `30代`) / 合計 * 100) %>% 
+  select(date, value) %>% filter(date >= "2021-01-01") %>% 
+  # pivot_longer(-date) %>% 
+  ggplot(aes(x = date, y = value)) + geom_line(color = "darkblue") +
+  scale_x_date(labels = md, breaks = "1 month") +
+  theme_bw() +
+  theme(axis.title = element_blank(),
+        legend.title = element_blank())
+ggplotly(young_rate_plot)
+```
+
+その他の指標②
+=====================================  
+
+Rows {.tabset}
+-------------------------------------
+
+### 状況別感染者数（人）
+```{r}
+situation_plot <- situation %>% 
+  filter(str_detect(name, "の者の数$")) %>% 
+  mutate(name = str_remove(name, "の者の数$"),
+         name = factor(name, levels = c("自宅待機等", "宿泊療養中", "入院中"))) %>% 
+  select(date, name, value) %>% 
+  filter(date >= "2021-01-01") %>% 
+  ggplot(aes(x = date, y = value, fill = name)) +
+  geom_area() +
+  scale_x_date(labels = md, breaks = "1 month") +
+  scale_y_continuous(labels = scales::comma) +
+  scale_fill_brewer(palette = "Pastel1", direction = -1) +
+  theme_bw() +
+  theme(axis.title = element_blank(),
+        legend.title = element_blank())
+ggplotly(situation_plot) %>% layout(legend = list(x = 0, y = 1))
+```
+
+### 年代別10万人あたり新規感染者数（人）
+```{r}
+age_percapita_plot <- patients %>% 
+  filter(age != "調査中", age != "-") %>% 
+  group_by(date, age) %>% summarise(n = n()) %>% ungroup() %>% 
+  pivot_wider(names_from = age, values_from = n, values_fill = 0) %>% 
+  complete(date = full_seq(date, 1), 
+           fill = set_names(as.list(rep(0, 11)), c("10歳未満", str_c(seq(10, 80, 10), "代"), "90代以上", "合計"))) %>% 
+  mutate(across(-date, roll_sumr, n = 7)) %>% 
+  filter(date >= "2021-01-01") %>% pivot_longer(-date) %>% 
+  left_join(age_pop, by = c("name" = "age10")) %>% 
+  mutate(age = factor(name, levels = c("10歳未満", str_c(seq(10, 80, 10), "代"), "90代以上"), labels = str_c(seq(0, 90, 10), "~", c(seq(9, 89, 10), "")))) %>% 
+  mutate(value = value * 1e5 / population) %>% arrange(date, age) %>% 
+  ggplot(aes(x = date, y = value, color = age)) + 
+  geom_hline(yintercept = 25, color = "red", linetype = "dotted") +
+  geom_hline(yintercept = 15, color = "orange", linetype = "dotted") +
+  geom_line() +
+  scale_x_date(labels = md, breaks = "1 month") +
+  scale_color_brewer(palette = "Paired") +
+  theme_bw() +
+  theme(axis.title = element_blank(),
+        legend.title = element_blank())
+ggplotly(age_percapita_plot) %>% layout(legend = list(x = 0, y = 1))
 ```
