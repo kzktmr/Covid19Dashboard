@@ -19,15 +19,7 @@ library(RcppRoll)
 library(ggplot2)
 library(flexdashboard)
 library(plotly)
-
-# 関数
-last_value <- function(dat, col){
-  col <- enquo(col)
-  dat %>% select(!!col) %>% tail(1) %>% pull()
-}
-md <- function(x){
-  str_c(month(x), "/", day(x))
-}
+library(sf)
 
 # データ
 population  <- read_csv("data/population.csv")
@@ -38,10 +30,24 @@ situation   <- read_csv("data/situation.csv")
 sickbeds    <- read_csv("data/sickbeds.csv")
 vaccination <- read_csv("data/vaccination.csv")
 age_pop     <- read_csv("data/population_by_age.csv")
+region      <- read_csv("data/fukuoka_region.csv")
+map         <- st_read("data/map.geojson")
 
 # 定数
 pref_pop <- population %>% filter(name == "県") %>% pull()
 age_pop2 <- tibble(age = c("-64", "65-"), pop = c(3046999, 1396860))
+
+# 関数
+last_value <- function(dat, col){
+  col <- enquo(col)
+  dat %>% select(!!col) %>% tail(1) %>% pull()
+}
+md <- function(x){
+  str_c(lubridate::month(x), "/", lubridate::day(x))
+}
+pop <- function(city){
+  city_pop %>% filter(name == city) %>% pull(population)
+}
 ```
 
 ステージ判断指標
@@ -457,3 +463,93 @@ age_percapita_plot <- patients %>%
         legend.title = element_blank())
 ggplotly(age_percapita_plot) %>% layout(legend = list(x = 0, y = 1))
 ```
+
+地域別感染状況{data-orientation=columns}
+=====================================  
+
+Column
+-------------------------------------
+
+### 地域別人口10万人あたり週間新規陽性者数
+```{r}
+by_region <- patients %>% 
+  mutate(county = case_when(str_detect(address, "^福岡市") ~ "福岡市",
+                            str_detect(address, "^北九州市") ~ "北九州市",
+                            str_detect(address, "小倉南区") ~ "北九州市", # TODO
+                            str_detect(address, "[都道府県]$") ~ NA_character_,
+                            str_detect(address, ".*県.*市") ~ NA_character_,
+                            str_detect(address, "下関市|熊本市|大分市|中津市|鳥栖市|長崎市|大阪市") ~ NA_character_,
+                            str_detect(address, "海外|県外|調査中|―") ~ NA_character_,
+                            address == 0 ~ NA_character_,
+                            TRUE ~ address)) %>% 
+  filter(!is.na(county)) %>%
+  left_join(region) 
+region_plot  <- by_region %>% 
+  group_by(date, region) %>% count() %>% ungroup() %>% 
+  pivot_wider(names_from = region, values_from = n, values_fill = 0) %>% 
+  complete(date = full_seq(date, 1), 
+           fill = list("福岡" = 0, "北九州" = 0, "筑後" = 0, "筑豊" = 0)) %>% 
+  mutate(across(where(is.numeric), roll_sumr, n = 7)) %>% 
+  pivot_longer(-date) %>% mutate(name = str_c(name, "地域")) %>% 
+  left_join(population) %>% mutate(value = value / population * 100000) %>%
+  mutate(name = factor(name, levels = c("北九州地域", "福岡地域", "筑後地域", "筑豊地域"))) %>%
+  filter(date >= "2021-01-01") %>% 
+  ggplot(aes(x = date, y = value, color = name)) +
+  geom_hline(yintercept = c(15, 25), size = 0.25, linetype = "dashed") +
+  geom_line() + theme_light() +
+  scale_x_date(labels = md) +
+  theme(axis.title = element_blank(), legend.title = element_blank())
+ggplotly(region_plot) %>% layout(legend = list(x = 0, y = 1))
+```
+
+### 市・郡別人口10万人あたり週間新規陽性者数
+
+```{r}
+city_plot <- by_region %>% 
+  group_by(date, county) %>% count() %>% ungroup() %>% 
+  pivot_wider(names_from = county, values_from = n, values_fill = 0) %>% 
+  complete(date = full_seq(date, 1)) %>% 
+  mutate(across(where(is.numeric), replace_na, replace = 0)) %>% 
+  mutate(across(where(is.numeric), roll_sumr, n = 7)) %>% 
+  pivot_longer(-date) %>% 
+  left_join(population) %>% mutate(value = value / population * 100000) %>% 
+  filter(date >= "2021-01-01") %>% 
+  ggplot(aes(x = date, y = value, color = name)) +
+  geom_hline(yintercept = c(15, 25), size = 0.25, linetype = "dashed") +
+  geom_path() +
+  scale_colour_discrete(limits = c("福岡市", "北九州市", "久留米市")) +
+  theme_light() + 
+  scale_x_date(labels = md) +
+  theme(axis.title = element_blank(), legend.position = "none")
+ggplotly(city_plot)
+```
+
+Column
+-------------------------------------
+
+### 市・区・郡別人口10万人あたり週間新規陽性者数
+```{r}
+map_data <- patients %>% filter(date >= max(date) - 6) %>% 
+  mutate(address = str_remove_all(address , "[:space:]")) %>% 
+  mutate(region = case_when(str_detect(address, "^北九州市.*区") ~ str_remove(address, "北九州市"),
+                            str_detect(address, "^福岡市.*区") ~ str_remove(address, "福岡市"),
+                            str_detect(address, "[都道府県]$") ~ NA_character_,
+                            str_detect(address, ".*県.*市") ~ NA_character_,
+                            str_detect(address, "下関市|熊本市|大分市|中津市|鳥栖市|長崎市|大阪市") ~ NA_character_,
+                            str_detect(address, "海外|県外|調査中|―") ~ NA_character_,
+                            address == 0 ~ NA_character_,
+                            TRUE ~ address)) %>% 
+  filter(!is.na(region)) %>% 
+  group_by(region) %>% count() %>% ungroup() %>% 
+  left_join(population, by = c("region" = "name")) %>% 
+  mutate(value = n * 1e5 / population) %>% select(region, value) 
+map_data <- map %>% left_join(map_data)
+map_plot <- ggplot() + 
+  geom_sf(data = map_data, aes(fill = value, text = region)) +
+  theme_bw() +
+  colorspace::scale_fill_continuous_sequential("Heat") +
+  theme(axis.text = element_blank(), axis.ticks = element_blank())
+ggplotly(map_plot) 
+```
+
+

@@ -18,7 +18,7 @@ jobs:
       - name: Install packages 
         run: |
           install.packages(c("readr", "tidyr", "dplyr", "stringr"))
-          install.packages(c("lubridate", "RcppRoll", "flexdashboard", "plotly"))
+          install.packages(c("lubridate", "RcppRoll", "flexdashboard", "plotly", "sf"))
           install.packages("rmarkdown")
         shell: Rscript {0}
       - name: Render Dashboard
