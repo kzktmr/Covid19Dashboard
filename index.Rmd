@@ -549,7 +549,7 @@ map_plot <- ggplot() +
   theme_bw() +
   colorspace::scale_fill_continuous_sequential("Heat") +
   theme(axis.text = element_blank(), axis.ticks = element_blank())
-ggplotly(map_plot) 
+ggplotly(map_plot) %>% style(hoveron = "fill")
 ```
 
 
