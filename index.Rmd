@@ -61,7 +61,7 @@ detected <- newlycases %>%
 detected_value <- detected %>% last_value(value)
 detected_increase <- detected %>% last_value(increase)
 valueBox(sprintf("%.1f", detected_value), 
-         caption = "直近1週間の10万人あたり新規感染者数（人）",
+         caption = "10万人あたり週間新規感染者数（人）",
          icon = ifelse(detected_increase, "fa-arrow-up", "fa-arrow-down"),
          color = ifelse(detected_value >= 25, "danger", 
                         ifelse(detected_value >= 15, "warning", "primary"))
@@ -163,7 +163,7 @@ valueBox(sprintf("%.1f", hospital_ratio_value),
 Row
 -----------------------------------------------------------------------
 
-### 直近1週間の10万人あたり新規感染者数（人）
+### 10万人あたり週間新規感染者数（人）
 
 ```{r}
 detected_plot <- detected %>% 
@@ -387,7 +387,7 @@ weel_ratio_plot <- newlycases %>%
 ggplotly(weel_ratio_plot)
 ```
 
-### 新規感染者の若者割合（％）
+### 週間新規感染者の若者割合（％）
 ```{r}
 young_rate_plot <- patients %>% 
   filter(age != "調査中", age != "-") %>% 
@@ -433,7 +433,7 @@ situation_plot <- situation %>%
 ggplotly(situation_plot) %>% layout(legend = list(x = 0, y = 1))
 ```
 
-### 直近1週間の年代別10万人あたり新規感染者数（人）
+### 年代別10万人あたり週間新規感染者数（人）
 ```{r}
 age_percapita_plot <- patients %>% 
   filter(age != "調査中", age != "-") %>% 
