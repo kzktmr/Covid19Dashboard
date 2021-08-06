@@ -495,7 +495,8 @@ region_plot  <- by_region %>%
   mutate(name = factor(name, levels = c("北九州地域", "福岡地域", "筑後地域", "筑豊地域"))) %>%
   filter(date >= "2021-01-01") %>% 
   ggplot(aes(x = date, y = value, color = name)) +
-  geom_hline(yintercept = c(15, 25), size = 0.25, linetype = "dashed") +
+  geom_hline(yintercept = 25, color = "red", alpha = 0.5) +
+  geom_hline(yintercept = 15, color = "orange", alpha = 0.5) +
   geom_line() + theme_light() +
   scale_x_date(labels = md) +
   theme(axis.title = element_blank(), legend.title = element_blank())
@@ -515,7 +516,8 @@ city_plot <- by_region %>%
   left_join(population) %>% mutate(value = value / population * 100000) %>% 
   filter(date >= "2021-01-01") %>% 
   ggplot(aes(x = date, y = value, color = name)) +
-  geom_hline(yintercept = c(15, 25), size = 0.25, linetype = "dashed") +
+  geom_hline(yintercept = 25, color = "red", alpha = 0.5) +
+  geom_hline(yintercept = 15, color = "orange", alpha = 0.5) +
   geom_path() +
   scale_colour_discrete(limits = c("福岡市", "北九州市", "久留米市")) +
   theme_light() + 
