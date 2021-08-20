@@ -80,7 +80,9 @@ tmp <- tibble(date = c(as.Date("2021-01-01"), Sys.Date())) %>%
                          date < "2021-06-17" ~ 1375,
                          date < "2021-07-02" ~ 1403,
                          date < "2021-08-12" ~ 1413,
-                         TRUE ~ 1423))
+                         date < "2021-08-17" ~ 1423,
+                         date < "2021-08-18" ~ 1433,
+                         TRUE ~ 1444))
 write_csv(tmp, "data/sickbeds.csv")
 
 # ワクチン接種状況
