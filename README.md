@@ -10,6 +10,8 @@
 * [福岡県 人口移動調査 第2表 市区町村別・年齢別人口](https://ckan.open-governmentdata.org/dataset/401000_jinkouidouchousa-shikuchouson-nenrei)（令和2年9月1日現在 統計表01）
 ### 福岡県記者発表資料
 * [福岡県内における新型コロナウイルス感染症陽性者等について](https://www.pref.fukuoka.lg.jp/press/index.php?search_cnr_kwd=福岡県内における新型コロナウイルス感染症陽性者等について&pb=&pc=&search=1)
+### 厚生労働省省
+* [オープンデータ](https://www.mhlw.go.jp/stf/covid-19/open-data.html)
 ### 政府CIOポータル
 * [ワクチン接種状況オープンデータ](https://cio.go.jp/c19vaccine_dashboard)
 ### 総務省
