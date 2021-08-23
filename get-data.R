@@ -94,3 +94,12 @@ GET("https://vrs-data.cio.go.jp/vaccination/opendata/latest/prefecture.ndjson") 
 tmp <- ndjson::stream_in(tmp_file) %>% filter(prefecture == "40") 
 
 write_csv(tmp, "data/vaccination.csv")
+
+# 重症者数
+severe_cases <-
+  read_csv("https://covid19.mhlw.go.jp/public/opendata/severe_cases_daily.csv") %>%
+  filter(Prefecture == "Fukuoka") %>% 
+  mutate(date = as.Date(Date)) %>% 
+  select(date, severe_cases = `Severe cases`)
+
+write_csv(severe_cases, "data/severe_cases.csv")

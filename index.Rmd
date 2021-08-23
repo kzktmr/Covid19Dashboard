@@ -417,7 +417,7 @@ ggplotly(young_rate_plot)
 その他の指標②
 =====================================  
 
-Rows {.tabset}
+Rows
 -------------------------------------
 
 ### 状況別感染者数（人）
@@ -438,6 +438,31 @@ situation_plot <- situation %>%
         legend.title = element_blank())
 ggplotly(situation_plot) %>% layout(legend = list(x = 0, y = 1))
 ```
+
+### 重症者数（人）
+```{r}
+severe_cases_plot <- severe_cases %>% 
+  filter(date>= "2021-01-01") %>% 
+  ggplot(aes(x = date, y = severe_cases)) +
+  geom_line(color = "darkblue") +
+  scale_y_continuous(limits = c(0, NA)) +
+  scale_x_date(labels = md, breaks = "1 month") +
+  theme_bw() +
+  theme(axis.title = element_blank(),
+        legend.title = element_blank())
+ggplotly(severe_cases_plot)
+```
+
+Rows
+-------------------------------------
+
+
+
+その他の指標③
+=====================================  
+
+Rows {.tabset}
+-------------------------------------
 
 ### 年代別10万人あたり週間新規感染者数（人）
 ```{r}
