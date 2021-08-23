@@ -457,6 +457,42 @@ ggplotly(severe_cases_plot)
 Rows
 -------------------------------------
 
+### 感染確認数と退院および死亡数（人）
+```{r}
+recovery_plot <- situation %>% 
+  filter(name %in% c("陽性者数累計", "退院者数累計", "死亡者数累計")) %>% 
+  pivot_wider() %>% 
+  select(date, positive = 陽性者数累計, 
+         discharge = 退院者数累計, dead = 死亡者数累計) %>% 
+  mutate(across(where(is.numeric), function(x){x - lag(x)}), 
+         discharge = discharge + dead,
+         across(where(is.numeric), RcppRoll::roll_meanr, n = 7)) %>% 
+  select(date, 感染確認 = positive, `回復・死亡` = discharge) %>%
+  filter(date >= "2021-01-01") %>% pivot_longer(2:3) %>% 
+  ggplot(aes(x = date, y = value, color = name)) +
+  geom_line() +
+  theme_bw() +
+  theme(axis.title = element_blank(),
+        legend.title = element_blank())
+ggplotly(recovery_plot) %>% layout(legend = list(x = 0, y = 1))
+```
+
+### 死亡者数（人）
+
+```{r}
+dead_plot <- situation %>% 
+  filter(name == "死亡者数累計") %>% 
+  mutate(dead = value - lag(value), 
+         ma = roll_meanr(dead, 7)) %>% 
+  filter(date >= "2021-01-01") %>% 
+  ggplot(aes(x = date, y = dead)) + 
+  geom_col(width = 1, fill = "lightblue") +
+  geom_line(aes(y = ma), color = "darkblue") +
+  theme_bw() +
+  theme(axis.title = element_blank(),
+        legend.title = element_blank())
+ggplotly(dead_plot)
+```
 
 
 その他の指標③
