@@ -485,7 +485,7 @@ ggplotly(recovery_plot) %>% layout(legend = list(x = 0, y = 1))
 dead_plot <- situation %>% 
   filter(name == "死亡者数累計") %>% 
   mutate(dead = value - lag(value), 
-         ma = roll_meanr(dead, 7)) %>% 
+         ma = roll_mean(dead, n = 7, fill = NA)) %>% 
   filter(date >= "2021-01-01") %>% 
   ggplot(aes(x = date, y = dead)) + 
   geom_col(width = 1, fill = "lightblue") +
