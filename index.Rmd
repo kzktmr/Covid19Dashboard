@@ -36,7 +36,7 @@ map         <- st_read("data/map.geojson")
 
 # 定数
 pref_pop <- population %>% filter(name == "県") %>% pull()
-age_pop2 <- tibble(age = c("-64", "65-"), pop = c(3046999, 1396860))
+age_pop2 <- tibble(age = c("-64", "65-"), pop = c(3029330, 1412467))
 
 # 関数
 last_value <- function(dat, col){
