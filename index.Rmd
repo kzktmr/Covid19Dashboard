@@ -546,7 +546,7 @@ by_region <- patients %>%
                             str_detect(address, "小倉南区") ~ "北九州市", # TODO
                             str_detect(address, "[都道府県]$") ~ NA_character_,
                             str_detect(address, ".*県.*市") ~ NA_character_,
-                            str_detect(address, "下関市|熊本市|大分市|中津市|鳥栖市|長崎市|大阪市|佐世保市|京都市|広島市") ~ NA_character_,
+                            str_detect(address, "下関市|熊本市|大分市|中津市|鳥栖市|長崎市|大阪市|佐世保市|京都市|広島市|唐津市") ~ NA_character_,
                             str_detect(address, "海外|県外|調査中|確認中|―") ~ NA_character_,
                             address == 0 ~ NA_character_,
                             TRUE ~ address)) %>% 
@@ -608,7 +608,7 @@ map_data <- patients %>% filter(date >= max(date) - 6) %>%
                             str_detect(address, "^鞍手町$") ~ "鞍手郡",
                             str_detect(address, "[都道府県]$") ~ NA_character_,
                             str_detect(address, ".*県.*市") ~ NA_character_,
-                            str_detect(address, "下関市|熊本市|大分市|中津市|鳥栖市|長崎市|大阪市|京都市|広島市") ~ NA_character_,
+                            str_detect(address, "下関市|熊本市|大分市|中津市|鳥栖市|長崎市|大阪市|京都市|広島市|唐津市") ~ NA_character_,
                             str_detect(address, "海外|県外|調査中|―") ~ NA_character_,
                             address == 0 ~ NA_character_,
                             TRUE ~ address)) %>% 
