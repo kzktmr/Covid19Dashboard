@@ -316,7 +316,7 @@ vaccination_plot <- vaccination %>%
   theme_bw() +
   theme(axis.title = element_blank(),
         legend.title = element_blank())
-ggplotly(vaccination_plot) %>% layout(legend = list(x = 0, y = 1))
+ggplotly(vaccination_plot) %>% layout(legend = list(x = 0, y = 1, title = ""))
 ```
 
 ### 接種率の推移（％）
@@ -330,7 +330,7 @@ vaccination_rate_plot <- vaccination_rate %>%
   theme_bw() +
   theme(axis.title = element_blank(),
         legend.title = element_blank())
-ggplotly(vaccination_rate_plot) %>% layout(legend = list(x = 0, y = 1))
+ggplotly(vaccination_rate_plot) %>% layout(legend = list(x = 0, y = 1, title = ""))
 ```
 
 > 65歳未満の接種率は，15〜64歳の人口を基に計算しています。
@@ -438,7 +438,7 @@ situation_plot <- situation %>%
   theme_bw() +
   theme(axis.title = element_blank(),
         legend.title = element_blank())
-ggplotly(situation_plot) %>% layout(legend = list(x = 0, y = 1))
+ggplotly(situation_plot) %>% layout(legend = list(x = 0, y = 1, title = ""))
 ```
 
 ### 重症者数（人）
@@ -476,7 +476,7 @@ recovery_plot <- situation %>%
   theme_bw() +
   theme(axis.title = element_blank(),
         legend.title = element_blank())
-ggplotly(recovery_plot) %>% layout(legend = list(x = 0, y = 1))
+ggplotly(recovery_plot) %>% layout(legend = list(x = 0, y = 1, title = ""))
 ```
 
 ### 死亡者数（人）
@@ -526,7 +526,7 @@ age_percapita_plot <- patients %>%
   theme_bw() +
   theme(axis.title = element_blank(),
         legend.title = element_blank())
-ggplotly(age_percapita_plot) %>% layout(legend = list(x = 0, y = 1))
+ggplotly(age_percapita_plot) %>% layout(legend = list(x = 0, y = 1, title = ""))
 ```
 
 地域別感染状況{data-orientation=columns}
@@ -568,7 +568,7 @@ region_plot  <- by_region %>%
   geom_line() + theme_light() +
   scale_x_date(labels = md) +
   theme(axis.title = element_blank(), legend.title = element_blank())
-ggplotly(region_plot) %>% layout(legend = list(x = 0, y = 1))
+ggplotly(region_plot) %>% layout(legend = list(x = 0, y = 1, title = ""))
 ```
 
 ### 市・郡別人口10万人あたり週間新規陽性者数
