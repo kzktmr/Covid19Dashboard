@@ -616,13 +616,13 @@ map_data <- patients %>% filter(date >= max(date) - 6) %>%
   group_by(region) %>% count() %>% ungroup() %>% 
   left_join(population, by = c("region" = "name")) %>% 
   mutate(value = n * 1e5 / population) %>% select(region, value) 
-map_data <- map %>% left_join(map_data)
+map_data <- map %>% left_join(map_data) %>% replace_na(list(value = 0))
 map_plot <- ggplot() + 
-  geom_sf(data = map_data, aes(fill = value, text = paste("name:", region))) +
+  geom_sf(data = map_data, aes(fill = value, label = region)) +
   theme_bw() +
   colorspace::scale_fill_continuous_sequential("Heat") +
   theme(axis.text = element_blank(), axis.ticks = element_blank())
-ggplotly(map_plot) %>% style(hoveron = "fill")
+ggplotly(map_plot) %>% style(hoveron = "fills")
 ```
 
 
