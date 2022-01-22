@@ -9,7 +9,8 @@ library(ndjson)
 ckanr_setup(url = "https://ckan.open-governmentdata.org/")
 
 # 福岡県　新型コロナウイルス感染症　陽性者発表情報
-res <- resource_show("0430a12e-568c-4a6a-bed8-51621f47c6e5")
+# res <- resource_show("0430a12e-568c-4a6a-bed8-51621f47c6e5")
+res <- resource_show("419f6cff-e74a-49b3-9f3c-7b425e5f5228")
 
 tmp <- read_csv(res$url, skip = 1, col_types = "___D_cccl__",
                 col_names = c("date", "address", "age", "sex", "untraceable")) %>% 
@@ -18,7 +19,8 @@ tmp <- read_csv(res$url, skip = 1, col_types = "___D_cccl__",
 write_csv(tmp, "data/patients.csv")
 
 # 福岡県　新型コロナウイルス感染症　新規陽性者数
-res <- resource_show("bd25a096-b060-428a-bc85-91c1715fc540")
+# res <- resource_show("bd25a096-b060-428a-bc85-91c1715fc540")
+res <- resource_show("949b90ee-25df-4423-a8f4-d58295676339")
 
 tmp <- read_csv(res$url, skip = 1, col_types = "___D_dd", 
                 col_names = c("date", "detected", "detected_cum")) %>% 
@@ -27,7 +29,8 @@ tmp <- read_csv(res$url, skip = 1, col_types = "___D_dd",
 write_csv(tmp, "data/newlycases.csv")
 
 # 福岡県　新型コロナウイルス感染症　検査陽性者の状況
-res <- resource_show("e3630e26-14c5-4cd0-b111-53e51b56b85a")
+# res <- resource_show("e3630e26-14c5-4cd0-b111-53e51b56b85a")
+res <- resource_show("f9d172be-5cf7-4d89-aca5-cbcde79314e1")
 
 tmp <- 
   read_csv(res$url, col_types = "__Dcdddddddd") %>% 
@@ -38,7 +41,8 @@ tmp <-
 write_csv(tmp, "data/situation.csv")
 
 # 福岡県　新型コロナウイルス感染症　検査実施数
-res <- resource_show("33e3a2ba-6d07-474c-9370-2885932b22e9")
+# res <- resource_show("33e3a2ba-6d07-474c-9370-2885932b22e9")
+res <- resource_show("dacd1366-2a49-4a1a-a508-73fc0f57b5ca")
 
 tmp <- 
   read_csv(res$url,
