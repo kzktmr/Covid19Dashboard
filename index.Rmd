@@ -326,7 +326,7 @@ vaccination_plot <- vaccination %>%
   geom_col(aes(fill = status)) +
   scale_x_date(labels = md) +
   scale_y_continuous(labels = scales::comma) +
-  scale_fill_brewer(palette = "Set2") +
+  scale_fill_brewer(palette = "Set3") +
   theme_bw() +
   theme(axis.title = element_blank(),
         legend.title = element_blank())
