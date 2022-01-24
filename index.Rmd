@@ -288,7 +288,7 @@ gauge(sprintf("%.1f", under65_2nd), min = 0, max = 100, symbol = '%')
 ```{r}
 over65_2nd <- vaccination_rate %>% 
   filter(status == "65歳以上_2回目") %>% last_value(ratio)
-gauge(sprintf("%.1f", over65_1st), min = 0, max = 100, symbol = '%')
+gauge(sprintf("%.1f", over65_2nd), min = 0, max = 100, symbol = '%')
 ```
 
 ### 接種率（65歳以上，3回目）
