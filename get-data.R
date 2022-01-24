@@ -103,7 +103,8 @@ write_csv(tmp, "data/sickbeds.csv")
 # ワクチン接種状況
 tmp_file <- tempfile()
 
-GET("https://vrs-data.cio.go.jp/vaccination/opendata/latest/prefecture.ndjson") %>% 
+# GET("https://vrs-data.cio.go.jp/vaccination/opendata/latest/prefecture.ndjson") %>% 
+GET("https://data.vrs.digital.go.jp/vaccination/opendata/latest/prefecture.ndjson") %>% 
   content() %>% writeBin(tmp_file)
 tmp <- ndjson::stream_in(tmp_file) %>% filter(prefecture == "40") 
 

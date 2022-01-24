@@ -12,7 +12,7 @@
 * [福岡県内における新型コロナウイルス感染症陽性者等について](https://www.pref.fukuoka.lg.jp/press/index.php?search_cnr_kwd=福岡県内における新型コロナウイルス感染症陽性者等について&pb=&pc=&search=1)
 ### 厚生労働省
 * [オープンデータ](https://www.mhlw.go.jp/stf/covid-19/open-data.html)
-### 政府CIOポータル
-* [ワクチン接種状況オープンデータ](https://cio.go.jp/c19vaccine_dashboard)
+### デジタル庁
+* [ワクチン接種状況オープンデータ](https://info.vrs.digital.go.jp/dashboard)
 ### 総務省
 * [住民基本台帳に基づく人口、人口動態及び世帯数](https://www.soumu.go.jp/main_sosiki/jichi_gyousei/daityo/jinkou_jinkoudoutai-setaisuu.html)
