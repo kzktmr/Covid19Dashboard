@@ -284,6 +284,13 @@ under65_2nd <- vaccination_rate %>%
 gauge(sprintf("%.1f", under65_2nd), min = 0, max = 100, symbol = '%')
 ```
 
+### 接種率（65歳以上，1回目）
+```{r}
+over65_1st <- vaccination_rate %>% 
+  filter(status == "65歳以上_1回目") %>% last_value(ratio)
+gauge(sprintf("%.1f", over65_1st), min = 0, max = 100, symbol = '%')
+```
+
 ### 接種率（65歳以上，2回目）
 ```{r}
 over65_2nd <- vaccination_rate %>% 
@@ -306,7 +313,7 @@ vaccination_plot <- vaccination %>%
   group_by(date, age, status) %>% summarise(count = sum(count)) %>% ungroup() %>% 
   mutate(date = as.Date(date), 
          age = factor(age, labels = c("65歳未満", "65歳以上", "年齢不明")),
-         status = factor(status, labels = c("1回目", "2回目"))) %>% 
+         status = factor(status, labels = c("1回目", "2回目", "3回目"))) %>% 
   unite("status", age:status) %>% 
   ggplot(aes(x = date, y = count)) +
   geom_col(aes(fill = status)) +
