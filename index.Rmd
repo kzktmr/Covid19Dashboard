@@ -17,6 +17,7 @@ library(stringr)
 library(lubridate)
 library(RcppRoll)
 library(ggplot2)
+library(khroma)
 library(flexdashboard)
 library(plotly)
 library(sf)
@@ -326,7 +327,7 @@ vaccination_plot <- vaccination %>%
   geom_col(aes(fill = status)) +
   scale_x_date(labels = md) +
   scale_y_continuous(labels = scales::comma) +
-  scale_fill_brewer(palette = "Set3") +
+  scale_fill_muted() +
   theme_bw() +
   theme(axis.title = element_blank(),
         legend.title = element_blank())
@@ -340,7 +341,7 @@ vaccination_rate_plot <- vaccination_rate %>%
   geom_line() +
   scale_x_date(labels = md) +
   scale_y_continuous(labels = scales::comma) +
-  scale_color_brewer(palette = "Set2") +
+  scale_fill_muted() +
   theme_bw() +
   theme(axis.title = element_blank(),
         legend.title = element_blank())

@@ -19,7 +19,7 @@ jobs:
         run: |
           install.packages(c("readr", "tidyr", "dplyr", "stringr"), type = "binary")
           install.packages(c("lubridate", "RcppRoll", "flexdashboard", "plotly", "sf"), type = "binary")
-          install.packages("rmarkdown", type = "binary")
+          install.packages(c("khroma", "rmarkdown"), type = "binary")
         shell: Rscript {0}
       - name: Render Dashboard
         run: Rscript -e 'rmarkdown::render("index.Rmd", output_dir = "docs")'
