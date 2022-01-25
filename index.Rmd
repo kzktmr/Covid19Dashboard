@@ -341,7 +341,7 @@ vaccination_rate_plot <- vaccination_rate %>%
   geom_line() +
   scale_x_date(labels = md) +
   scale_y_continuous(labels = scales::comma) +
-  scale_fill_muted() +
+  scale_color_muted() +
   theme_bw() +
   theme(axis.title = element_blank(),
         legend.title = element_blank())
