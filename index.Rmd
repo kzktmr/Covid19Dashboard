@@ -12,15 +12,20 @@ output:
 # ライブラリ
 library(tidyr)
 library(dplyr)
+library(purrr)
 library(readr)
 library(stringr)
 library(lubridate)
 library(RcppRoll)
-library(ggplot2)
-library(khroma)
 library(flexdashboard)
-library(plotly)
-library(sf)
+library(highcharter)
+library(DT)
+library(geojsonio)
+
+# オプション
+hcopts <-  getOption("highcharter.lang")
+hcopts$thousandsSep <- ","
+options(highcharter.lang = hcopts)
 
 # データ
 population  <- read_csv("data/population.csv")
@@ -52,7 +57,7 @@ pop <- function(city){
 }
 ```
 
-ステージ判断指標
+
 =====================================  
 
 Row
@@ -105,7 +110,7 @@ positive_ratio <- newlycases %>%
   select(date, value, increase) %>% filter(date >= "2021-01-01")
 positive_ratio_value <- positive_ratio %>% last_value(value)
 positive_ratio_increase <- positive_ratio %>% last_value(increase)
-valueBox(sprintf("%.2f", positive_ratio_value), 
+valueBox(sprintf("%.1f", positive_ratio_value), 
          caption = "検査等陽性率（％）",
          icon = ifelse(positive_ratio_increase, "fa-arrow-up", "fa-arrow-down"),
          color = ifelse(positive_ratio_value >= 10, "danger", 
@@ -139,7 +144,8 @@ valueBox(sprintf("%.1f", total_patient_value),
 bed_occupancy <- situation %>% 
   filter(name == "うち確保病床の入院者数") %>% 
   filter(date >= "2021-01-01") %>% left_join(sickbeds) %>% na.omit() %>% 
-  mutate(value = value / bed * 100, increase = value > lag(value))
+  mutate(value = value / bed * 100, increase = value > lag(value)) %>% 
+  select(date, value, increase) %>% filter(date >= "2021-01-01")
 bed_occupancy_value = bed_occupancy %>% last_value(value)
 bed_occupancy_increase = bed_occupancy %>% last_value(increase)
 valueBox(sprintf("%.1f", bed_occupancy_value), 
@@ -174,39 +180,42 @@ Row
 ### 10万人あたり週間新規感染者数（人）
 
 ```{r}
-detected_plot <- detected %>% 
-  ggplot(aes(x = date, y = value)) +
-  geom_hline(yintercept = 25, color = "red", alpha = 0.5) +
-  geom_hline(yintercept = 15, color = "orange", alpha = 0.5) +
-  geom_path(color = "darkblue") + theme_light() + ylim(0, NA) +
-  scale_x_date(labels = md, breaks = "1 month") +
-  theme(axis.title = element_blank())
-ggplotly(detected_plot)
+detected %>% hchart("line", hcaes(x = date, y = value,)) %>% 
+  hc_yAxis(title = FALSE,
+           plotLines = list(
+             list(value = 25, color = "#ff0000", width = 1),
+             list(value = 15, color = "#ffa500", width = 1)
+             )
+           ) %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_tooltip(pointFormat = "<b>{point.value:.1f}</b> 人") 
 ```
 
 ### 感染経路不明割合（％）
 
 ```{r}
-untraceable_plot <- untraceable %>% 
-  ggplot(aes(x = date, y = value)) +
-  geom_hline(yintercept = 50, color = "red", alpha = 0.5) +
-  geom_path(color = "darkblue") + theme_light() + 
-  scale_x_date(labels = md, breaks = "1 month") +
-  theme(axis.title = element_blank())
-ggplotly(untraceable_plot)
+untraceable %>% hchart("line", hcaes(x = date, y = value,)) %>% 
+  hc_yAxis(title = FALSE,
+           plotLines = list(
+             list(value = 50, color = "#ff0000", width = 1)
+             )
+           ) %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_tooltip(pointFormat = "<b>{point.value:.1f}</b> %") 
 ```
 
 ### 検査等陽性率（％）
 
 ```{r}
-positive_ratio_plot <- positive_ratio %>% 
-  ggplot(aes(x = date, y = value)) +
-  geom_hline(yintercept = 10, color = "red", alpha = 0.5) +
-  geom_hline(yintercept = 5, color = "orange", alpha = 0.5) +
-  geom_path(color = "darkblue") + theme_light() + 
-  scale_x_date(labels = md, breaks = "1 month") +
-  theme(axis.title = element_blank())
-ggplotly(positive_ratio_plot)
+positive_ratio %>% hchart("line", hcaes(x = date, y = value,)) %>% 
+  hc_yAxis(title = FALSE,
+           plotLines = list(
+             list(value = 10, color = "#ff0000", width = 1),
+             list(value = 5, color = "#ffa500", width = 1)
+             )
+           ) %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_tooltip(pointFormat = "<b>{point.value:.1f} </b>%") 
 ```
 
 Row
@@ -215,38 +224,41 @@ Row
 ### 10万人あたり療養者数
 
 ```{r}
-total_patient_plot <- total_patient %>% 
-  ggplot(aes(x = date, y = value)) +
-  geom_hline(yintercept = 30, color = "red", alpha = 0.5) +
-  geom_hline(yintercept = 20, color = "orange", alpha = 0.5) +
-  geom_path(color = "darkblue") + theme_light() + ylim(0, NA) +
-  scale_x_date(labels = md, breaks = "1 month") +
-  theme(axis.title = element_blank())
-ggplotly(total_patient_plot)
+total_patient %>% hchart("line", hcaes(x = date, y = value,)) %>% 
+  hc_yAxis(title = FALSE,
+           plotLines = list(
+             list(value = 30, color = "#ff0000", width = 1),
+             list(value = 20, color = "#ffa500", width = 1)
+             )
+           ) %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_tooltip(pointFormat = "<b>{point.value:.1f}</b> 人") 
 ```
 
 ### 確保病床使用率（％）
 ```{r}
-bed_occupancy_plot <- bed_occupancy %>% 
-  ggplot(aes(x = date, y = value)) +
-  geom_hline(yintercept = 50, color = "red", alpha = 0.5) +
-  geom_hline(yintercept = 20, color = "orange", alpha = 0.5) +
-  geom_path(color = "darkblue") + theme_light() + #ylim(0, NA) +
-  scale_x_date(labels = md, breaks = "1 month") +
-  theme(axis.title = element_blank())
-ggplotly(bed_occupancy_plot)
+bed_occupancy %>% hchart("line", hcaes(x = date, y = value,)) %>% 
+  hc_yAxis(title = FALSE,
+           plotLines = list(
+             list(value = 50, color = "#ff0000", width = 1),
+             list(value = 20, color = "#ffa500", width = 1)
+             )
+           ) %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_tooltip(pointFormat = "<b>{point.value:.1f} </b>%") 
 ```
 
 ### 入院率（％）
 ```{r}
-hospital_ratio_plot <- hospital_ratio %>% 
-  ggplot(aes(x = date, y = value)) +
-  geom_hline(yintercept = 40, color = "orange", alpha = 0.5) +
-  geom_hline(yintercept = 25, color = "red", alpha = 0.5) +
-  geom_path(color = "darkblue") + theme_light() + #ylim(0, NA) +
-  scale_x_date(labels = md, breaks = "1 month") +
-  theme(axis.title = element_blank())
-ggplotly(hospital_ratio_plot)
+hospital_ratio %>% hchart("line", hcaes(x = date, y = value,)) %>% 
+  hc_yAxis(title = FALSE,
+           plotLines = list(
+             list(value = 25, color = "#ff0000", width = 1),
+             list(value = 40, color = "#ffa500", width = 1)
+             )
+           ) %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_tooltip(pointFormat = "<b>{point.value:.1f}</b> %") 
 ```
 
 ワクチン接種状況
@@ -264,7 +276,7 @@ vaccination_rate <-
   mutate(date = as.Date(date), 
          age = factor(age, labels = c("65歳未満", "65歳以上")),
          status = factor(status, labels = c("1回目", "2回目", "3回目"))) %>% 
-  unite("status", age:status) %>% 
+  unite("status", age:status, sep = "") %>% 
   arrange(date) 
 ```
 
@@ -274,42 +286,42 @@ Row
 ### 接種率（65歳未満，1回目）
 ```{r}
 under65_1st <- vaccination_rate %>% 
-  filter(status == "65歳未満_1回目") %>% last_value(ratio)
+  filter(status == "65歳未満1回目") %>% last_value(ratio)
 gauge(sprintf("%.1f", under65_1st), min = 0, max = 100, symbol = '%')
 ```
 
 ### 接種率（65歳未満，2回目）
 ```{r}
 under65_2nd <- vaccination_rate %>% 
-  filter(status == "65歳未満_2回目") %>% last_value(ratio)
+  filter(status == "65歳未満2回目") %>% last_value(ratio)
 gauge(sprintf("%.1f", under65_2nd), min = 0, max = 100, symbol = '%')
 ```
 
 ### 接種率（65歳未満，3回目）
 ```{r}
 under65_3rd <- vaccination_rate %>% 
-  filter(status == "65歳未満_3回目") %>% last_value(ratio)
+  filter(status == "65歳未満3回目") %>% last_value(ratio)
 gauge(sprintf("%.1f", under65_3rd), min = 0, max = 100, symbol = '%')
 ```
 
 ### 接種率（65歳以上，1回目）
 ```{r}
 over65_1st <- vaccination_rate %>% 
-  filter(status == "65歳以上_1回目") %>% last_value(ratio)
+  filter(status == "65歳以上1回目") %>% last_value(ratio)
 gauge(sprintf("%.1f", over65_1st), min = 0, max = 100, symbol = '%')
 ```
 
 ### 接種率（65歳以上，2回目）
 ```{r}
 over65_2nd <- vaccination_rate %>% 
-  filter(status == "65歳以上_2回目") %>% last_value(ratio)
+  filter(status == "65歳以上2回目") %>% last_value(ratio)
 gauge(sprintf("%.1f", over65_2nd), min = 0, max = 100, symbol = '%')
 ```
 
 ### 接種率（65歳以上，3回目）
 ```{r}
 over65_3rd <- vaccination_rate %>% 
-  filter(status == "65歳以上_3回目") %>% last_value(ratio)
+  filter(status == "65歳以上3回目") %>% last_value(ratio)
 gauge(sprintf("%.1f", over65_3rd), min = 0, max = 100, symbol = '%')
 ```
 
@@ -317,38 +329,35 @@ Row
 -------------------------
 ### 接種回数の推移
 ```{r}
-vaccination_plot <- vaccination %>% 
+vaccination %>% 
   group_by(date, age, status) %>% summarise(count = sum(count)) %>% ungroup() %>% 
   mutate(date = as.Date(date), 
          age = factor(age, labels = c("65歳未満", "65歳以上", "年齢不明")),
          status = factor(status, labels = c("1回目", "2回目", "3回目"))) %>% 
-  unite("status", age:status) %>% 
-  ggplot(aes(x = date, y = count)) +
-  geom_col(aes(fill = status)) +
-  scale_x_date(labels = md) +
-  scale_y_continuous(labels = scales::comma) +
-  scale_fill_muted() +
-  theme_bw() +
-  theme(axis.title = element_blank(),
-        legend.title = element_blank())
-ggplotly(vaccination_plot) %>% layout(legend = list(x = 0, y = 1, title = ""))
+  unite("status", age:status, sep = "") %>% 
+  hchart("column", hcaes(x = date, y = count, group = status), 
+         zoomType = "xy",
+         colorKey = "status") %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_yAxis(title = FALSE) %>% 
+  hc_plotOptions(column = list(stacking = "normal", borderWidth = 0),
+                 series = list(pointPadding = 0, groupPadding = 0)) %>% 
+  hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.count:,.0f}</b>') 
 ```
 
 ### 接種率の推移（％）
 ```{r}
-vaccination_rate_plot <- vaccination_rate %>% 
-  ggplot(aes(x = date, y = ratio, color = status)) +
-  geom_line() +
-  scale_x_date(labels = md) +
-  scale_y_continuous(labels = scales::comma) +
-  scale_color_muted() +
-  theme_bw() +
-  theme(axis.title = element_blank(),
-        legend.title = element_blank())
-ggplotly(vaccination_rate_plot) %>% layout(legend = list(x = 0, y = 1, title = ""))
+vaccination_rate %>% 
+  hchart("line", hcaes(x = date, y = ratio, group = status), 
+         zoomType = "x",
+         colorKey = "status") %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_yAxis(title = FALSE) %>% 
+  hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.ratio:.1f} %</b>') 
 ```
 
 > 65歳未満の接種率は，15〜64歳の人口を基に計算しています。
+
 
 その他の指標①
 =====================================  
@@ -358,36 +367,37 @@ Rows
 
 ### 新規陽性者数（人）
 ```{r}
-positive_plot <- newlycases %>%
+newlycases %>%
   select(date, value = detected) %>% 
   mutate(ma = roll_meanr(value, 7)) %>% 
-  filter(date >= as.Date("2021-01-01")) %>%
-  ggplot(aes(x = date, y = value)) +
-  geom_col(fill = "lightblue", width = 1) +
-  geom_line(aes(y = ma), color = "darkblue", linetype = "dotted") +
-  scale_x_date(labels = md, breaks = "1 month") +
-  scale_y_continuous(labels = scales::comma) +
-  theme_bw() +
-  theme(axis.title = element_blank(),
-        legend.title = element_blank())
-ggplotly(positive_plot)
+  filter(date >= as.Date("2021-01-01")) -> tmp
+hchart(tmp, "column", hcaes(x = date, y = value), name = "新規陽性者数") %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_yAxis(title = FALSE) %>% 
+  hc_plotOptions(column = list(stacking = "normal", borderWidth = 0),
+                 series = list(pointPadding = 0, groupPadding = 0)) %>% 
+    hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.0f}</b> 人') %>% 
+  hc_add_series(tmp, "line", hcaes(x = date, y = ma), color = "darkblue", name = "移動平均",
+                dashStyle = "shortdash",
+                tooltip = list(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.ma:,.1f}</b> 人'))
 ```
 
 ### PCR等検査件数（件）
 ```{r}
-inspection_plot <- inspection %>% 
+inspection %>% 
   select(date, value = inspected) %>% 
   mutate(ma = roll_meanr(value, 7)) %>% 
-  filter(date >= "2021-01-01") %>% 
-  ggplot(aes(x = date, y = value)) + 
-  geom_col(fill = "lightblue", width = 1) +
-  geom_line(aes(y = ma), color = "darkblue", linetype = "dotted") +
-  scale_x_date(labels = md, breaks = "1 month") +
-  scale_y_continuous(labels = scales::comma) +
-  theme_bw() +
-  theme(axis.title = element_blank(),
-        legend.title = element_blank())
-ggplotly(inspection_plot)
+  filter(date >= "2021-01-01") -> tmp
+tmp %>% hchart("column", hcaes(x = date, y = value), name = "PCR等検査数") %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_yAxis(title = FALSE) %>% 
+  hc_plotOptions(column = list(stacking = "normal", borderWidth = 0),
+                 series = list(pointPadding = 0, groupPadding = 0)) %>% 
+    hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.0f}</b> 件') %>% 
+  hc_add_series(tmp, "line", hcaes(x = date, y = ma), color = "darkblue", name = "移動平均",
+                dashStyle = "shortdash",
+                tooltip = list(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.ma:,.1f}</b> 件'))
+
 ```
 
 Rows
@@ -395,24 +405,25 @@ Rows
 
 ### 新規感染者数の先週今週比
 ```{r}
-weel_ratio_plot <- newlycases %>% 
+newlycases %>% 
   mutate(detected_sum = roll_sumr(detected, 7),
          value = detected_sum / lag(detected_sum, 7)) %>% 
   select(date, value) %>% 
   filter(date >= as.Date("2021-01-01")) %>% 
-  ggplot(aes(x = date, y = value)) +
-  geom_hline(yintercept = 1, size = 0.25) +
-  geom_line(color = "darkblue") +
-  scale_x_date(labels = md, breaks = "1 month") +
-  theme_bw() +
-  theme(axis.title = element_blank(),
-        legend.title = element_blank())
-ggplotly(weel_ratio_plot)
+  hchart("line", hcaes(x = date, y = value), name = "先週今週比") %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_yAxis(title = FALSE, 
+           plotLines = list(
+             list(value = 1, color = "#000000", width = 1)
+             )) %>% 
+  hc_plotOptions(column = list(stacking = "normal", borderWidth = 0),
+                 series = list(pointPadding = 0, groupPadding = 0)) %>% 
+    hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.2f}</b>')
 ```
 
 ### 週間新規感染者の若者割合（％）
 ```{r}
-young_rate_plot <- patients %>% 
+patients %>% 
   filter(age != "調査中", age != "-") %>% 
   group_by(date, age) %>% summarise(n = n()) %>% ungroup() %>% 
   pivot_wider(names_from = age, values_from = n, values_fill = 0) %>% 
@@ -422,13 +433,12 @@ young_rate_plot <- patients %>%
   mutate(across(-date, roll_sumr, n = 7)) %>% 
   mutate(value = (`20代` + `30代`) / 合計 * 100) %>% 
   select(date, value) %>% filter(date >= "2021-01-01") %>% 
-  # pivot_longer(-date) %>% 
-  ggplot(aes(x = date, y = value)) + geom_line(color = "darkblue") +
-  scale_x_date(labels = md, breaks = "1 month") +
-  theme_bw() +
-  theme(axis.title = element_blank(),
-        legend.title = element_blank())
-ggplotly(young_rate_plot)
+  hchart("line", hcaes(x = date, y = value), name = "若者割合") %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_yAxis(title = FALSE) %>% 
+  hc_plotOptions(column = list(stacking = "normal", borderWidth = 0),
+                 series = list(pointPadding = 0, groupPadding = 0)) %>% 
+    hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.1f}</b> %')
 ```
 
 その他の指標②
@@ -439,89 +449,78 @@ Rows
 
 ### 状況別感染者数（人）
 ```{r}
-situation_plot <- situation %>% 
+situation %>% 
   filter(str_detect(name, "の者の数$")) %>% 
   mutate(name = str_remove(name, "の者の数$"),
          name = factor(name, levels = c("自宅待機等", "宿泊療養中", "入院中"))) %>% 
   select(date, name, value) %>% 
   filter(date >= "2021-01-01") %>% 
-  ggplot(aes(x = date, y = value, fill = name)) +
-  geom_area() +
-  scale_x_date(labels = md, breaks = "1 month") +
-  scale_y_continuous(labels = scales::comma) +
-  scale_fill_brewer(palette = "Pastel1", direction = -1) +
-  theme_bw() +
-  theme(axis.title = element_blank(),
-        legend.title = element_blank())
-ggplotly(situation_plot) %>% layout(legend = list(x = 0, y = 1, title = ""))
+  hchart("area", hcaes(x = date, y = value, group = name, name = date)) %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_yAxis(title = FALSE) %>% 
+  hc_plotOptions(area = list(stacking = "normal", borderWidth = 0)) %>% 
+  hc_tooltip(valueSuffix = " 人")
 ```
 
-### 重症者数（人）
+### 感染確認数と退院および死亡数（人）
 ```{r}
-severe_cases_plot <- severe_cases %>% 
-  filter(date>= "2021-01-01") %>% 
-  ggplot(aes(x = date, y = severe_cases)) +
-  geom_line(color = "darkblue") +
-  scale_y_continuous(limits = c(0, NA)) +
-  scale_x_date(labels = md, breaks = "1 month") +
-  theme_bw() +
-  theme(axis.title = element_blank(),
-        legend.title = element_blank())
-ggplotly(severe_cases_plot)
+situation %>%
+  filter(name %in% c("陽性者数累計", "退院者数累計", "死亡者数累計")) %>%
+  pivot_wider() %>%
+  select(date, positive = 陽性者数累計,
+         discharge = 退院者数累計, dead = 死亡者数累計) %>%
+  mutate(across(where(is.numeric), function(x){x - lag(x)}),
+         discharge = discharge + dead,
+         across(where(is.numeric), RcppRoll::roll_meanr, n = 7)) %>%
+  select(date, 感染確認 = positive, `回復・死亡` = discharge) %>%
+  filter(date >= "2021-01-01") %>% pivot_longer(2:3) %>%
+  hchart("line", hcaes(x = date, y = value, group = name, name = date)) %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_yAxis(title = FALSE, labels = list(format = "{value:,.0f}")) %>% 
+  hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.1f}</b> 人')
 ```
 
 Rows
 -------------------------------------
 
-### 感染確認数と退院および死亡数（人）
+### 重症者数（人）
 ```{r}
-recovery_plot <- situation %>% 
-  filter(name %in% c("陽性者数累計", "退院者数累計", "死亡者数累計")) %>% 
-  pivot_wider() %>% 
-  select(date, positive = 陽性者数累計, 
-         discharge = 退院者数累計, dead = 死亡者数累計) %>% 
-  mutate(across(where(is.numeric), function(x){x - lag(x)}), 
-         discharge = discharge + dead,
-         across(where(is.numeric), RcppRoll::roll_meanr, n = 7)) %>% 
-  select(date, 感染確認 = positive, `回復・死亡` = discharge) %>%
-  filter(date >= "2021-01-01") %>% pivot_longer(2:3) %>% 
-  ggplot(aes(x = date, y = value, color = name)) +
-  geom_line() +
-  scale_x_date(labels = md, breaks = "1 month") +
-  theme_bw() +
-  theme(axis.title = element_blank(),
-        legend.title = element_blank())
-ggplotly(recovery_plot) %>% layout(legend = list(x = 0, y = 1, title = ""))
+severe_cases %>% 
+  filter(date>= "2021-01-01") %>% 
+  hchart("line", hcaes(x = date, y = severe_cases), name = "重傷者数") %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_yAxis(title = FALSE) %>% 
+  hc_tooltip(valueSuffix = " 人")
 ```
 
 ### 死亡者数（人）
 
 ```{r}
-dead_plot <- situation %>% 
-  filter(name == "死亡者数累計") %>% 
-  mutate(dead = value - lag(value), 
-         ma = roll_mean(dead, n = 7, fill = NA)) %>% 
-  filter(date >= "2021-01-01") %>% 
-  ggplot(aes(x = date, y = dead)) + 
-  geom_col(width = 1, fill = "lightblue") +
-  geom_line(aes(y = ma), color = "darkblue") +
-  scale_x_date(labels = md, breaks = "1 month") +
-  theme_bw() +
-  theme(axis.title = element_blank(),
-        legend.title = element_blank())
-ggplotly(dead_plot)
+situation %>% 
+  filter(name == "死亡者数累計") %>%
+  mutate(dead = value - lag(value),
+         ma = roll_mean(dead, n = 7, fill = NA)) %>% select(-name) %>% 
+  filter(date >= "2021-01-01") -> tmp
+tmp %>% hchart("column", hcaes(x = date, y = dead), name = "死亡者者") %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_yAxis(title = FALSE) %>% 
+  hc_plotOptions(column = list(stacking = "normal", borderWidth = 0),
+                 series = list(pointPadding = 0, groupPadding = 0)) %>% 
+    hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.dead:,.0f}</b> 人') %>% 
+  hc_add_series(tmp, "line", hcaes(x = date, y = ma), color = "darkblue", name = "移動平均",
+                # dashStyle = "shortdash",
+                tooltip = list(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.ma:,.1f}</b> 人'))
 ```
 
-
-その他の指標③
+年代別感染状況
 =====================================  
 
-Rows {.tabset}
+Rows
 -------------------------------------
 
 ### 年代別10万人あたり週間新規感染者数（人）
 ```{r}
-age_percapita_plot <- patients %>% 
+patients %>% 
   filter(age != "調査中", age != "-") %>% 
   group_by(date, age) %>% summarise(n = n()) %>% ungroup() %>% 
   pivot_wider(names_from = age, values_from = n, values_fill = 0) %>% 
@@ -532,16 +531,20 @@ age_percapita_plot <- patients %>%
   left_join(age_pop, by = c("name" = "age10")) %>% 
   mutate(age = factor(name, levels = c("10歳未満", str_c(seq(10, 80, 10), "代"), "90代以上"), labels = str_c(seq(0, 90, 10), "~", c(seq(9, 89, 10), "")))) %>% 
   mutate(value = value * 1e5 / population) %>% arrange(date, age) %>% 
-  ggplot(aes(x = date, y = value, color = age)) + 
-  geom_hline(yintercept = 25, color = "red", linetype = "dotted") +
-  geom_hline(yintercept = 15, color = "orange", linetype = "dotted") +
-  geom_line() +
-  scale_x_date(labels = md, breaks = "1 month") +
-  scale_color_brewer(palette = "Paired") +
-  theme_bw() +
-  theme(axis.title = element_blank(),
-        legend.title = element_blank())
-ggplotly(age_percapita_plot) %>% layout(legend = list(x = 0, y = 1, title = ""))
+hchart("line", hcaes(x = date, y = value, group = age, name = date)) %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_yAxis(title = FALSE, labels = list(format = "{value:,.0f}")) %>% 
+  hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.1f}</b> 人')
+#   ggplot(aes(x = date, y = value, color = age)) + 
+#   geom_hline(yintercept = 25, color = "red", linetype = "dotted") +
+#   geom_hline(yintercept = 15, color = "orange", linetype = "dotted") +
+#   geom_line() +
+#   scale_x_date(labels = md, breaks = "1 month") +
+#   scale_color_brewer(palette = "Paired") +
+#   theme_bw() +
+#   theme(axis.title = element_blank(),
+#         legend.title = element_blank())
+# ggplotly(age_percapita_plot) %>% layout(legend = list(x = 0, y = 1, title = ""))
 ```
 
 地域別感染状況{data-orientation=columns}
@@ -553,23 +556,28 @@ Column
 ### 地域別人口10万人あたり週間新規陽性者数
 ```{r}
 by_region <- patients %>% 
-  mutate(county = case_when(str_detect(address, "^福岡市") ~ "福岡市",
-                            str_detect(address, "^北九州市") ~ "北九州市",
+  mutate(city = case_when(str_detect(address, "^北九州市.*区") ~ 
+                              str_remove(address, "北九州市"),
+                            str_detect(address, "^福岡市.*区") ~ 
+                              str_remove(address, "福岡市"),
                             str_detect(address, "^那珂川$") ~ "那珂川市",
                             str_detect(address, "^三瀦郡$") ~ "三潴郡",
                             str_detect(address, "^鞍手町$") ~ "鞍手郡",
                             str_detect(address, "^苅田町$") ~ "京都郡",
                             str_detect(address, "^大宰府市$") ~ "太宰府市",
-                            str_detect(address, "小倉南区") ~ "北九州市", # TODO
                             str_detect(address, "[都道府県]$") ~ NA_character_,
                             str_detect(address, ".*県.*市") ~ NA_character_,
-                            str_detect(address, "下関市|熊本市|大分市|中津市|鳥栖市|長崎市|大阪市|佐世保市|京都市|広島市|裾野市|唐津市|鹿児島市") ~ NA_character_,
+                            str_detect(address, 
+                                       paste(c("下関市", "熊本市", "大分市", "中津市",
+                                               "鳥栖市", "長崎市", "大阪市", "佐世保市",
+                                               "京都市", "広島市", "裾野市", "唐津市",
+                                               "鹿児島市"), collapse = "|")) ~ NA_character_,
                             str_detect(address, "海外|県外|調査中|確認中|―") ~ NA_character_,
                             address == 0 ~ NA_character_,
                             TRUE ~ address)) %>% 
-  filter(!is.na(county)) %>%
-  left_join(region) 
-region_plot  <- by_region %>% 
+  filter(!is.na(city)) %>% 
+  left_join(region, by = "city")
+by_region %>% 
   group_by(date, region) %>% count() %>% ungroup() %>% 
   pivot_wider(names_from = region, values_from = n, values_fill = 0) %>% 
   complete(date = full_seq(date, 1), 
@@ -579,68 +587,67 @@ region_plot  <- by_region %>%
   left_join(population) %>% mutate(value = value / population * 100000) %>%
   mutate(name = factor(name, levels = c("北九州地域", "福岡地域", "筑後地域", "筑豊地域"))) %>%
   filter(date >= "2021-01-01") %>% 
-  ggplot(aes(x = date, y = value, color = name)) +
-  geom_hline(yintercept = 25, color = "red", alpha = 0.5, linetype = "dotted") +
-  geom_hline(yintercept = 15, color = "orange", alpha = 0.5, linetype = "dotted") +
-  geom_line() + theme_light() +
-  scale_x_date(labels = md) +
-  theme(axis.title = element_blank(), legend.title = element_blank())
-ggplotly(region_plot) %>% layout(legend = list(x = 0, y = 1, title = ""))
+  hchart("line", hcaes(x = date, y = value, group = name, name = date)) %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_yAxis(title = FALSE) %>% 
+  hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.1f}</b> 人')
 ```
 
-### 市・郡別人口10万人あたり週間新規陽性者数
+### 市・区・郡別人口10万人あたり週間新規陽性者数
 
 ```{r}
-city_plot <- by_region %>% 
-  group_by(date, county) %>% count() %>% ungroup() %>% 
-  pivot_wider(names_from = county, values_from = n, values_fill = 0) %>% 
-  complete(date = full_seq(date, 1)) %>% 
-  mutate(across(where(is.numeric), replace_na, replace = 0)) %>% 
-  mutate(across(where(is.numeric), roll_sumr, n = 7)) %>% 
-  pivot_longer(-date) %>% 
-  left_join(population) %>% mutate(value = value / population * 100000) %>% 
-  filter(date >= "2021-01-01") %>% 
-  highlight_key(~name) %>% 
-  ggplot(aes(x = date, y = value, group = name)) +
-  geom_path() +
-  geom_hline(yintercept = 25, color = "red", alpha = 0.5) +
-  geom_hline(yintercept = 15, color = "orange", alpha = 0.5) +
-  theme_light() + 
-  scale_x_date(labels = md) +
-  theme(axis.title = element_blank(), legend.position = "none")
-ggplotly(city_plot) %>% highlight(on = "plotly_hover", color = "red")
+tmp_data <- by_region %>% 
+  select(date, county) %>% group_by(date, county) %>% count(name = "value") %>%
+  group_by(county) %>% complete(date = full_seq(date, 1), fill = list(value = 0)) %>% 
+  ungroup() %>% 
+  pivot_wider(names_from = county, values_fill = 0) %>% arrange(date) %>% 
+  mutate(across(where(is.numeric), RcppRoll::roll_sumr, n = 7)) %>% 
+  filter(date >= max(date) - 14) %>% pivot_longer(-date, names_to = "county") %>% 
+  left_join(population, by = c("county" = "name")) %>% 
+  mutate(value = value * 1e5 / population)
+tmp_data %>% select(-population) %>% filter(date == max(date)) %>% 
+  datatable(options = list(scrollY = "100%",
+                           order = list(list(3, "desc")))) %>% 
+  formatRound("value", 1)
 ```
 
 Column
--------------------------------------
+-----------------------------------------------------------------------
 
 ### 市・区・郡別人口10万人あたり週間新規陽性者数
+
 ```{r}
-map_data <- patients %>% filter(date >= max(date) - 6) %>% 
-  mutate(address = str_remove_all(address , "[:space:]")) %>% 
-  mutate(region = case_when(str_detect(address, "^北九州市.*区") ~ str_remove(address, "北九州市"),
-                            str_detect(address, "^福岡市.*区") ~ str_remove(address, "福岡市"),
-                            str_detect(address, "^那珂川$") ~ "那珂川市",
-                            str_detect(address, "^三瀦郡$") ~ "三潴郡",
-                            str_detect(address, "^鞍手町$") ~ "鞍手郡",
-                            str_detect(address, "^苅田町$") ~ "京都郡",
-                            str_detect(address, "[都道府県]$") ~ NA_character_,
-                            str_detect(address, ".*県.*市") ~ NA_character_,
-                            str_detect(address, "下関市|熊本市|大分市|中津市|鳥栖市|長崎市|大阪市|京都市|広島市|唐津市|鹿児島市") ~ NA_character_,
-                            str_detect(address, "海外|県外|調査中|―") ~ NA_character_,
-                            address == 0 ~ NA_character_,
-                            TRUE ~ address)) %>% 
-  filter(!is.na(region)) %>% 
-  group_by(region) %>% count() %>% ungroup() %>% 
-  left_join(population, by = c("region" = "name")) %>% 
-  mutate(value = n * 1e5 / population) %>% select(region, value) 
-map_data <- map %>% left_join(map_data) %>% replace_na(list(value = 0))
-map_plot <- ggplot() + 
-  geom_sf(data = map_data, aes(fill = value, label = region)) +
-  theme_bw() +
-  colorspace::scale_fill_continuous_sequential("Heat") +
-  theme(axis.text = element_blank(), axis.ticks = element_blank())
-ggplotly(map_plot) %>% style(hoveron = "fills")
+tmp_data <- tmp_data %>% 
+  mutate(date = datetime_to_timestamp(date))
+cht_data <- tmp_data %>% nest(-county) %>% 
+  mutate(
+    data = map(data, mutate_mapping, hcaes(x = date, y = value), drop = TRUE),
+    data = map(data, list_parse)
+  ) %>% rename(region = county, ttdata = data)
+map_data <- tmp_data %>% filter(date == max(date)) %>% rename(region = county) %>% 
+  left_join(cht_data) 
+  
+highchart() %>%
+  hc_add_series_map(map, map_data, "value", "region",
+                    name = "10万人あたり週間新規感染者数",
+                    dataLabels = list(enabled = TRUE, 
+                                      format = '{point.properties.region}')
+                    ) %>% 
+  hc_colorAxis(stops = color_stops(10, colorspace::sequential_hcl(palette = "Heat", 10, rev = TRUE))) %>% 
+  hc_legend(valueDecimals = 0) %>% 
+  hc_tooltip(useHTML = TRUE, 
+             pointFormatter = tooltip_chart(accesor = "ttdata", 
+               hc_opts = list(xAxis = list(title = FALSE,
+                                           type = "datetime", 
+                                           labels = list(format = "{value:%m/%d}")),
+                              yAxis = list(title = FALSE,
+                                           labels = list(format = "{value:,.0f}")),
+                              series = list(list(name = "",
+                                                 dataLabels = list(enabled = TRUE,
+                                                                   format = "{y:,.1f}"))),
+                              subtitle = list(floating = TRUE, text = "point.region")
+               ))) %>% 
+  hc_mapNavigation(enabled = TRUE)
 ```
 
 
