@@ -535,16 +535,6 @@ hchart("line", hcaes(x = date, y = value, group = age, name = date)) %>%
   hc_xAxis(title = FALSE) %>% 
   hc_yAxis(title = FALSE, labels = list(format = "{value:,.0f}")) %>% 
   hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.1f}</b> 人')
-#   ggplot(aes(x = date, y = value, color = age)) + 
-#   geom_hline(yintercept = 25, color = "red", linetype = "dotted") +
-#   geom_hline(yintercept = 15, color = "orange", linetype = "dotted") +
-#   geom_line() +
-#   scale_x_date(labels = md, breaks = "1 month") +
-#   scale_color_brewer(palette = "Paired") +
-#   theme_bw() +
-#   theme(axis.title = element_blank(),
-#         legend.title = element_blank())
-# ggplotly(age_percapita_plot) %>% layout(legend = list(x = 0, y = 1, title = ""))
 ```
 
 地域別感染状況{data-orientation=columns}
