@@ -592,14 +592,19 @@ tmp_data <- by_region %>%
   group_by(county) %>% complete(date = full_seq(date, 1), fill = list(value = 0)) %>% 
   ungroup() %>% 
   pivot_wider(names_from = county, values_fill = 0) %>% arrange(date) %>% 
+  mutate(福岡市 = 福岡市 + 東区 + 博多区 +中央区 +南区 + 城南区 + 早良区 + 西区,
+         北九州市 = 北九州市 + 門司区 + 小倉北区 + 小倉南区 + 若松区 + 八幡東区 + 八幡西区 + 戸畑区) %>% 
   mutate(across(where(is.numeric), RcppRoll::roll_sumr, n = 7)) %>% 
   filter(date >= max(date) - 14) %>% pivot_longer(-date, names_to = "county") %>% 
   left_join(population, by = c("county" = "name")) %>% 
-  mutate(value = value * 1e5 / population)
-tmp_data %>% select(-population) %>% filter(date == max(date)) %>% 
-  datatable(options = list(scrollY = "100%",
-                           order = list(list(3, "desc")))) %>% 
-  formatRound("value", 1)
+  mutate(n = value, value = value * 1e5 / population)
+tmp_data %>% select(date, county, value, n, population) %>%
+  filter(date == max(date)) %>% 
+  datatable(rownames = FALSE,
+            options = list(scrollY = "100%",
+                           order = list(list(2, "desc")),
+                           orderClasses = TRUE)) %>% 
+  formatRound("value", digits = 1) %>% formatRound(c("n", "population"), digits = 0)
 ```
 
 Column
