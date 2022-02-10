@@ -548,19 +548,20 @@ Column
 ```{r}
 by_region <- patients %>% 
   mutate(city = case_when(str_detect(address, "^北九州市.*区") ~ 
-                              str_remove(address, "北九州市"),
-                            str_detect(address, "^福岡市.*区") ~ 
-                              str_remove(address, "福岡市"),
-                            str_detect(address, "^那珂川$") ~ "那珂川市",
-                            str_detect(address, "^三瀦郡$") ~ "三潴郡",
-                            str_detect(address, "^鞍手町$") ~ "鞍手郡",
-                            str_detect(address, "^苅田町$") ~ "京都郡",
-                            str_detect(address, "^大宰府市$") ~ "太宰府市",
-                            str_detect(address, "^粕屋郡$") ~ "糟屋郡",
-                            str_detect(address, "[都道府県]$") ~ NA_character_,
-                            str_detect(address, ".*県.*市") ~ NA_character_,
-                            str_detect(address, 
-                                       paste(c("下関市", "熊本市", "大分市", "中津市",
+                            str_remove(address, "北九州市"),
+                          str_detect(address, "^福岡市.*区") ~ 
+                            str_remove(address, "福岡市"),
+                          str_detect(address, "^那珂川$") ~ "那珂川市",
+                          str_detect(address, "^大野城$") ~ "大野城市",
+                          str_detect(address, "^三瀦郡$") ~ "三潴郡",
+                          str_detect(address, "^鞍手町$") ~ "鞍手郡",
+                          str_detect(address, "^苅田町$") ~ "京都郡",
+                          str_detect(address, "^大宰府市$") ~ "太宰府市",
+                          str_detect(address, "^粕屋郡$") ~ "糟屋郡",
+                          str_detect(address, "[都道府県]$") ~ NA_character_,
+                          str_detect(address, ".*県.*市") ~ NA_character_,
+                          str_detect(address, 
+                                     paste(c("下関市", "熊本市", "大分市", "中津市",
                                                "鳥栖市", "長崎市", "大阪市", "佐世保市",
                                                "京都市", "広島市", "裾野市", "唐津市",
                                                "鹿児島市", "倉敷市", "仙台市",
