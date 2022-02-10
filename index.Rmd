@@ -69,8 +69,9 @@ Row
 detected <- newlycases %>% 
   mutate(detected_sum = roll_sumr(detected, 7),
          increase = detected_sum > lag(detected_sum),
-         value = detected_sum / pref_pop * 1e5) %>% 
-  filter(date >= "2021-01-01") %>% 
+         value = detected_sum / pref_pop * 1e5,
+         date = as.Date(date)) %>% 
+  filter(date >= as.Date("2021-01-01")) %>% 
   select(date, value, increase)
 detected_value <- detected %>% last_value(value)
 detected_increase <- detected %>% last_value(increase)
@@ -91,8 +92,9 @@ untraceable <- patients %>%
   complete(date = full_seq(date, 1), fill = list(untraceable = 0, traceable = 0)) %>% 
   mutate(n = untraceable + traceable, sum_n = roll_sumr(n, 7),
          sum_u = roll_sumr(untraceable, 7), value = sum_u / sum_n * 100,
-         increase = value > lag(value)) %>% 
-  select(date, value, increase) %>% filter(date >= "2021-01-01")
+         increase = value > lag(value),
+         date = as.Date(date)) %>% 
+  select(date, value, increase) %>% filter(date >= as.Date("2021-01-01"))
 untraceable_value <- untraceable %>% last_value(value)
 untraceable_increase <- untraceable %>% last_value(increase)
 valueBox(sprintf("%.1f", untraceable_value), 
@@ -107,8 +109,9 @@ positive_ratio <- newlycases %>%
   mutate(detected_sum = roll_sumr(detected, 7)) %>% left_join(inspection) %>% 
   mutate(inspected_sum = roll_sumr(inspected, 7),
          value = detected_sum / inspected_sum * 100,
-         increase = value > lag(value)) %>% 
-  select(date, value, increase) %>% filter(date >= "2021-01-01")
+         increase = value > lag(value),
+         date = as.Date(date)) %>% 
+  select(date, value, increase) %>% filter(date >= as.Date("2021-01-01"))
 positive_ratio_value <- positive_ratio %>% last_value(value)
 positive_ratio_increase <- positive_ratio %>% last_value(increase)
 valueBox(sprintf("%.1f", positive_ratio_value), 
@@ -128,8 +131,9 @@ total_patient <-
   situation %>% filter(str_detect(name, "者の数$")) %>% 
   group_by(date) %>% summarise(value = sum(value)) %>% ungroup() %>% 
   mutate(increase = value > lag(value),
-         value = value / pref_pop * 1e5) %>% drop_na() %>% 
-  select(date, value, increase) %>% filter(date >= "2021-01-01")
+         value = value / pref_pop * 1e5,
+         date = as.Date(date)) %>% drop_na() %>% 
+  select(date, value, increase) %>% filter(date >= as.Date("2021-01-01"))
 total_patient_value <- total_patient %>% last_value(value)
 total_patient_increase <- total_patient %>% last_value(increase)
 valueBox(sprintf("%.1f", total_patient_value), 
@@ -145,8 +149,10 @@ valueBox(sprintf("%.1f", total_patient_value),
 bed_occupancy <- situation %>% 
   filter(name == "うち確保病床の入院者数") %>% 
   filter(date >= "2021-01-01") %>% left_join(sickbeds) %>% na.omit() %>% 
-  mutate(value = value / bed * 100, increase = value > lag(value)) %>% 
-  select(date, value, increase) %>% filter(date >= "2021-01-01")
+  mutate(value = value / bed * 100, 
+         increase = value > lag(value),
+         date = as.Date(date)) %>% 
+  select(date, value, increase) %>% filter(date >= as.Date("2021-01-01"))
 bed_occupancy_value = bed_occupancy %>% last_value(value)
 bed_occupancy_increase = bed_occupancy %>% last_value(increase)
 valueBox(sprintf("%.1f", bed_occupancy_value), 
@@ -163,8 +169,9 @@ hospital_ratio <- situation %>%
   filter(str_detect(name, "者の数$")) %>% 
   pivot_wider() %>% 
   mutate(value = `入院中の者の数` / (`入院中の者の数` + `宿泊療養中の者の数` + `自宅待機等の者の数`) * 100,
-         increase = value > lag(value)) %>% 
-  filter(date >= "2021-01-01") %>% na.omit()
+         increase = value > lag(value),
+         date = as.Date(date)) %>% 
+  filter(date >= as.Date("2021-01-01")) %>% na.omit()
 hospital_ratio_value <- hospital_ratio %>% last_value(value)
 hospital_ratio_increase <- hospital_ratio %>% last_value(increase)
 valueBox(sprintf("%.1f", hospital_ratio_value), 
@@ -181,34 +188,39 @@ Row
 ### 10万人あたり週間新規感染者数（人）
 
 ```{r}
-detected %>% hchart("line", hcaes(x = date, y = value,)) %>% 
+detected %>% filter(date >= max(date) - 365) %>% 
+  hchart("line", hcaes(x = date, y = value)) %>% 
   hc_yAxis(title = FALSE,
            plotLines = list(
              list(value = 25, color = "#ff0000", width = 1),
              list(value = 15, color = "#ffa500", width = 1)
              )
-           ) %>% 
-  hc_xAxis(title = FALSE) %>% 
-  hc_tooltip(pointFormat = "<b>{point.value:.1f}</b> 人") 
+           ) %>%
+  hc_xAxis(title = FALSE) %>%
+  hc_tooltip(pointFormat = "<b>{point.value:.1f}</b> 人") %>% 
+  hc_chart(zoomType = "x")
 ```
 
 ### 感染経路不明割合（％）
 
 ```{r}
-untraceable %>% hchart("line", hcaes(x = date, y = value,)) %>% 
+untraceable %>% filter(date >= max(date) - 365) %>%
+  hchart("line", hcaes(x = date, y = value,)) %>% 
   hc_yAxis(title = FALSE,
            plotLines = list(
              list(value = 50, color = "#ff0000", width = 1)
              )
            ) %>% 
   hc_xAxis(title = FALSE) %>% 
-  hc_tooltip(pointFormat = "<b>{point.value:.1f}</b> %") 
+  hc_tooltip(pointFormat = "<b>{point.value:.1f}</b> %") %>% 
+  hc_chart(zoomType = "x")
 ```
 
 ### 検査等陽性率（％）
 
 ```{r}
-positive_ratio %>% hchart("line", hcaes(x = date, y = value,)) %>% 
+positive_ratio %>% filter(date >= max(date) - 365) %>%
+  hchart("line", hcaes(x = date, y = value,)) %>% 
   hc_yAxis(title = FALSE,
            plotLines = list(
              list(value = 10, color = "#ff0000", width = 1),
@@ -216,7 +228,8 @@ positive_ratio %>% hchart("line", hcaes(x = date, y = value,)) %>%
              )
            ) %>% 
   hc_xAxis(title = FALSE) %>% 
-  hc_tooltip(pointFormat = "<b>{point.value:.1f} </b>%") 
+  hc_tooltip(pointFormat = "<b>{point.value:.1f} </b>%") %>% 
+  hc_chart(zoomType = "x")
 ```
 
 Row
@@ -225,20 +238,26 @@ Row
 ### 10万人あたり療養者数
 
 ```{r}
-total_patient %>% hchart("line", hcaes(x = date, y = value,)) %>% 
+total_patient %>% filter(date >= max(date) - 365) %>%
+  hchart("line", hcaes(x = date, y = value,)) %>% 
   hc_yAxis(title = FALSE,
+           labels = list(
+             format = "{value:,.0f}"
+           ),
            plotLines = list(
              list(value = 30, color = "#ff0000", width = 1),
              list(value = 20, color = "#ffa500", width = 1)
              )
            ) %>% 
   hc_xAxis(title = FALSE) %>% 
-  hc_tooltip(pointFormat = "<b>{point.value:.1f}</b> 人") 
+  hc_tooltip(pointFormat = "<b>{point.value:.1f}</b> 人") %>% 
+  hc_chart(zoomType = "x")
 ```
 
 ### 確保病床使用率（％）
 ```{r}
-bed_occupancy %>% hchart("line", hcaes(x = date, y = value,)) %>% 
+bed_occupancy %>% filter(date >= max(date) - 365) %>%
+  hchart("line", hcaes(x = date, y = value,)) %>% 
   hc_yAxis(title = FALSE,
            plotLines = list(
              list(value = 50, color = "#ff0000", width = 1),
@@ -246,12 +265,14 @@ bed_occupancy %>% hchart("line", hcaes(x = date, y = value,)) %>%
              )
            ) %>% 
   hc_xAxis(title = FALSE) %>% 
-  hc_tooltip(pointFormat = "<b>{point.value:.1f} </b>%") 
+  hc_tooltip(pointFormat = "<b>{point.value:.1f} </b>%") %>% 
+  hc_chart(zoomType = "x")
 ```
 
 ### 入院率（％）
 ```{r}
-hospital_ratio %>% hchart("line", hcaes(x = date, y = value,)) %>% 
+hospital_ratio %>% filter(date >= max(date) - 365) %>%
+  hchart("line", hcaes(x = date, y = value,)) %>% 
   hc_yAxis(title = FALSE,
            plotLines = list(
              list(value = 25, color = "#ff0000", width = 1),
@@ -259,7 +280,8 @@ hospital_ratio %>% hchart("line", hcaes(x = date, y = value,)) %>%
              )
            ) %>% 
   hc_xAxis(title = FALSE) %>% 
-  hc_tooltip(pointFormat = "<b>{point.value:.1f}</b> %") 
+  hc_tooltip(pointFormat = "<b>{point.value:.1f}</b> %") %>% 
+  hc_chart(zoomType = "x")
 ```
 
 ワクチン接種状況
@@ -343,7 +365,8 @@ vaccination %>%
   hc_yAxis(title = FALSE) %>% 
   hc_plotOptions(column = list(stacking = "normal", borderWidth = 0),
                  series = list(pointPadding = 0, groupPadding = 0)) %>% 
-  hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.count:,.0f}</b>') 
+  hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.count:,.0f}</b>') %>% 
+  hc_chart(zoomType = "x")
 ```
 
 ### 接種率の推移（％）
@@ -354,7 +377,8 @@ vaccination_rate %>%
          colorKey = "status") %>% 
   hc_xAxis(title = FALSE) %>% 
   hc_yAxis(title = FALSE) %>% 
-  hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.ratio:.1f} %</b>') 
+  hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.ratio:.1f} %</b>') %>% 
+  hc_chart(zoomType = "x")
 ```
 
 > 65歳未満の接種率は，15〜64歳の人口を基に計算しています。
@@ -380,7 +404,8 @@ hchart(tmp, "column", hcaes(x = date, y = value), name = "新規陽性者数") %
     hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.0f}</b> 人') %>% 
   hc_add_series(tmp, "line", hcaes(x = date, y = ma), color = "darkblue", name = "移動平均",
                 dashStyle = "shortdash",
-                tooltip = list(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.ma:,.1f}</b> 人'))
+                tooltip = list(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.ma:,.1f}</b> 人')) %>% 
+  hc_chart(zoomType = "x")
 ```
 
 ### PCR等検査件数（件）
@@ -397,7 +422,8 @@ tmp %>% hchart("column", hcaes(x = date, y = value), name = "PCR等検査数") %
     hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.0f}</b> 件') %>% 
   hc_add_series(tmp, "line", hcaes(x = date, y = ma), color = "darkblue", name = "移動平均",
                 dashStyle = "shortdash",
-                tooltip = list(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.ma:,.1f}</b> 件'))
+                tooltip = list(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.ma:,.1f}</b> 件')) %>% 
+  hc_chart(zoomType = "x")
 
 ```
 
@@ -419,7 +445,8 @@ newlycases %>%
              )) %>% 
   hc_plotOptions(column = list(stacking = "normal", borderWidth = 0),
                  series = list(pointPadding = 0, groupPadding = 0)) %>% 
-    hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.2f}</b>')
+    hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.2f}</b>') %>% 
+  hc_chart(zoomType = "x")
 ```
 
 ### 週間新規感染者の若者割合（％）
@@ -439,7 +466,8 @@ patients %>%
   hc_yAxis(title = FALSE) %>% 
   hc_plotOptions(column = list(stacking = "normal", borderWidth = 0),
                  series = list(pointPadding = 0, groupPadding = 0)) %>% 
-    hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.1f}</b> %')
+    hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.1f}</b> %') %>% 
+  hc_chart(zoomType = "x")
 ```
 
 その他の指標②
@@ -460,7 +488,8 @@ situation %>%
   hc_xAxis(title = FALSE) %>% 
   hc_yAxis(title = FALSE) %>% 
   hc_plotOptions(area = list(stacking = "normal", borderWidth = 0)) %>% 
-  hc_tooltip(valueSuffix = " 人")
+  hc_tooltip(valueSuffix = " 人") %>% 
+  hc_chart(zoomType = "x")
 ```
 
 ### 感染確認数と退院および死亡数（人）
@@ -478,7 +507,8 @@ situation %>%
   hchart("line", hcaes(x = date, y = value, group = name, name = date)) %>% 
   hc_xAxis(title = FALSE) %>% 
   hc_yAxis(title = FALSE, labels = list(format = "{value:,.0f}")) %>% 
-  hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.1f}</b> 人')
+  hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.1f}</b> 人') %>% 
+  hc_chart(zoomType = "x")
 ```
 
 Rows
@@ -491,7 +521,8 @@ severe_cases %>%
   hchart("line", hcaes(x = date, y = severe_cases), name = "重傷者数") %>% 
   hc_xAxis(title = FALSE) %>% 
   hc_yAxis(title = FALSE) %>% 
-  hc_tooltip(valueSuffix = " 人")
+  hc_tooltip(valueSuffix = " 人") %>% 
+  hc_chart(zoomType = "x")
 ```
 
 ### 死亡者数（人）
@@ -510,7 +541,8 @@ tmp %>% hchart("column", hcaes(x = date, y = dead), name = "死亡者者") %>%
     hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.dead:,.0f}</b> 人') %>% 
   hc_add_series(tmp, "line", hcaes(x = date, y = ma), color = "darkblue", name = "移動平均",
                 # dashStyle = "shortdash",
-                tooltip = list(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.ma:,.1f}</b> 人'))
+                tooltip = list(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.ma:,.1f}</b> 人')) %>% 
+  hc_chart(zoomType = "x")
 ```
 
 年代別感染状況
@@ -535,7 +567,8 @@ patients %>%
 hchart("line", hcaes(x = date, y = value, group = age, name = date)) %>% 
   hc_xAxis(title = FALSE) %>% 
   hc_yAxis(title = FALSE, labels = list(format = "{value:,.0f}")) %>% 
-  hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.1f}</b> 人')
+  hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.1f}</b> 人') %>% 
+  hc_chart(zoomType = "x")
 ```
 
 地域別感染状況{data-orientation=columns}
@@ -585,7 +618,8 @@ by_region %>%
   hchart("line", hcaes(x = date, y = value, group = name, name = date)) %>% 
   hc_xAxis(title = FALSE) %>% 
   hc_yAxis(title = FALSE) %>% 
-  hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.1f}</b> 人')
+  hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.1f}</b> 人') %>% 
+  hc_chart(zoomType = "x")
 ```
 
 ### 市・区・郡別人口10万人あたり週間新規陽性者数
