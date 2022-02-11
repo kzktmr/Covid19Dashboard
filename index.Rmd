@@ -198,7 +198,11 @@ detected %>% filter(date >= max(date) - 365) %>%
            ) %>%
   hc_xAxis(title = FALSE) %>%
   hc_tooltip(pointFormat = "<b>{point.value:.1f}</b> 人") %>% 
-  hc_chart(zoomType = "x")
+  hc_chart(zoomType = "x",
+           resetZoomButton = list(
+             position = list(align = "left")
+             )
+           )
 ```
 
 ### 感染経路不明割合（％）
@@ -213,7 +217,11 @@ untraceable %>% filter(date >= max(date) - 365) %>%
            ) %>% 
   hc_xAxis(title = FALSE) %>% 
   hc_tooltip(pointFormat = "<b>{point.value:.1f}</b> %") %>% 
-  hc_chart(zoomType = "x")
+  hc_chart(zoomType = "x",
+           resetZoomButton = list(
+             position = list(align = "left")
+             )
+           )
 ```
 
 ### 検査等陽性率（％）
@@ -229,7 +237,11 @@ positive_ratio %>% filter(date >= max(date) - 365) %>%
            ) %>% 
   hc_xAxis(title = FALSE) %>% 
   hc_tooltip(pointFormat = "<b>{point.value:.1f} </b>%") %>% 
-  hc_chart(zoomType = "x")
+  hc_chart(zoomType = "x",
+           resetZoomButton = list(
+             position = list(align = "left")
+             )
+           )
 ```
 
 Row
@@ -251,7 +263,11 @@ total_patient %>% filter(date >= max(date) - 365) %>%
            ) %>% 
   hc_xAxis(title = FALSE) %>% 
   hc_tooltip(pointFormat = "<b>{point.value:.1f}</b> 人") %>% 
-  hc_chart(zoomType = "x")
+  hc_chart(zoomType = "x",
+           resetZoomButton = list(
+             position = list(align = "left")
+             )
+           )
 ```
 
 ### 確保病床使用率（％）
@@ -266,7 +282,11 @@ bed_occupancy %>% filter(date >= max(date) - 365) %>%
            ) %>% 
   hc_xAxis(title = FALSE) %>% 
   hc_tooltip(pointFormat = "<b>{point.value:.1f} </b>%") %>% 
-  hc_chart(zoomType = "x")
+  hc_chart(zoomType = "x",
+           resetZoomButton = list(
+             position = list(align = "left")
+             )
+           )
 ```
 
 ### 入院率（％）
@@ -281,7 +301,11 @@ hospital_ratio %>% filter(date >= max(date) - 365) %>%
            ) %>% 
   hc_xAxis(title = FALSE) %>% 
   hc_tooltip(pointFormat = "<b>{point.value:.1f}</b> %") %>% 
-  hc_chart(zoomType = "x")
+  hc_chart(zoomType = "x",
+           resetZoomButton = list(
+             position = list(align = "left")
+             )
+           )
 ```
 
 ワクチン接種状況
@@ -366,7 +390,11 @@ vaccination %>%
   hc_plotOptions(column = list(stacking = "normal", borderWidth = 0),
                  series = list(pointPadding = 0, groupPadding = 0)) %>% 
   hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.count:,.0f}</b>') %>% 
-  hc_chart(zoomType = "x")
+  hc_chart(zoomType = "x",
+           resetZoomButton = list(
+             position = list(align = "left")
+             )
+           )
 ```
 
 ### 接種率の推移（％）
@@ -378,7 +406,11 @@ vaccination_rate %>%
   hc_xAxis(title = FALSE) %>% 
   hc_yAxis(title = FALSE) %>% 
   hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.ratio:.1f} %</b>') %>% 
-  hc_chart(zoomType = "x")
+  hc_chart(zoomType = "x",
+           resetZoomButton = list(
+             position = list(align = "left")
+             )
+           )
 ```
 
 > 65歳未満の接種率は，15〜64歳の人口を基に計算しています。
@@ -405,7 +437,11 @@ hchart(tmp, "column", hcaes(x = date, y = value), name = "新規陽性者数") %
   hc_add_series(tmp, "line", hcaes(x = date, y = ma), color = "darkblue", name = "移動平均",
                 dashStyle = "shortdash",
                 tooltip = list(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.ma:,.1f}</b> 人')) %>% 
-  hc_chart(zoomType = "x")
+  hc_chart(zoomType = "x",
+           resetZoomButton = list(
+             position = list(align = "left")
+             )
+           )
 ```
 
 ### PCR等検査件数（件）
@@ -423,8 +459,11 @@ tmp %>% hchart("column", hcaes(x = date, y = value), name = "PCR等検査数") %
   hc_add_series(tmp, "line", hcaes(x = date, y = ma), color = "darkblue", name = "移動平均",
                 dashStyle = "shortdash",
                 tooltip = list(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.ma:,.1f}</b> 件')) %>% 
-  hc_chart(zoomType = "x")
-
+  hc_chart(zoomType = "x",
+           resetZoomButton = list(
+             position = list(align = "left")
+             )
+           )
 ```
 
 Rows
@@ -446,7 +485,11 @@ newlycases %>%
   hc_plotOptions(column = list(stacking = "normal", borderWidth = 0),
                  series = list(pointPadding = 0, groupPadding = 0)) %>% 
     hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.2f}</b>') %>% 
-  hc_chart(zoomType = "x")
+  hc_chart(zoomType = "x",
+           resetZoomButton = list(
+             position = list(align = "left")
+             )
+           )
 ```
 
 ### 週間新規感染者の若者割合（％）
@@ -467,7 +510,11 @@ patients %>%
   hc_plotOptions(column = list(stacking = "normal", borderWidth = 0),
                  series = list(pointPadding = 0, groupPadding = 0)) %>% 
     hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.1f}</b> %') %>% 
-  hc_chart(zoomType = "x")
+  hc_chart(zoomType = "x",
+           resetZoomButton = list(
+             position = list(align = "left")
+             )
+           )
 ```
 
 その他の指標②
@@ -489,7 +536,11 @@ situation %>%
   hc_yAxis(title = FALSE) %>% 
   hc_plotOptions(area = list(stacking = "normal", borderWidth = 0)) %>% 
   hc_tooltip(valueSuffix = " 人") %>% 
-  hc_chart(zoomType = "x")
+  hc_chart(zoomType = "x",
+           resetZoomButton = list(
+             position = list(align = "left")
+             )
+           )
 ```
 
 ### 感染確認数と退院および死亡数（人）
@@ -508,7 +559,11 @@ situation %>%
   hc_xAxis(title = FALSE) %>% 
   hc_yAxis(title = FALSE, labels = list(format = "{value:,.0f}")) %>% 
   hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.1f}</b> 人') %>% 
-  hc_chart(zoomType = "x")
+  hc_chart(zoomType = "x",
+           resetZoomButton = list(
+             position = list(align = "left")
+             )
+           )
 ```
 
 Rows
@@ -522,7 +577,11 @@ severe_cases %>%
   hc_xAxis(title = FALSE) %>% 
   hc_yAxis(title = FALSE) %>% 
   hc_tooltip(valueSuffix = " 人") %>% 
-  hc_chart(zoomType = "x")
+  hc_chart(zoomType = "x",
+           resetZoomButton = list(
+             position = list(align = "left")
+             )
+           )
 ```
 
 ### 死亡者数（人）
@@ -542,7 +601,11 @@ tmp %>% hchart("column", hcaes(x = date, y = dead), name = "死亡者者") %>%
   hc_add_series(tmp, "line", hcaes(x = date, y = ma), color = "darkblue", name = "移動平均",
                 # dashStyle = "shortdash",
                 tooltip = list(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.ma:,.1f}</b> 人')) %>% 
-  hc_chart(zoomType = "x")
+  hc_chart(zoomType = "x",
+           resetZoomButton = list(
+             position = list(align = "left")
+             )
+           )
 ```
 
 年代別感染状況
@@ -568,7 +631,11 @@ hchart("line", hcaes(x = date, y = value, group = age, name = date)) %>%
   hc_xAxis(title = FALSE) %>% 
   hc_yAxis(title = FALSE, labels = list(format = "{value:,.0f}")) %>% 
   hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.1f}</b> 人') %>% 
-  hc_chart(zoomType = "x")
+  hc_chart(zoomType = "x",
+           resetZoomButton = list(
+             position = list(align = "left")
+             )
+           )
 ```
 
 地域別感染状況{data-orientation=columns}
@@ -619,7 +686,11 @@ by_region %>%
   hc_xAxis(title = FALSE) %>% 
   hc_yAxis(title = FALSE) %>% 
   hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.1f}</b> 人') %>% 
-  hc_chart(zoomType = "x")
+  hc_chart(zoomType = "x",
+           resetZoomButton = list(
+             position = list(align = "left")
+             )
+           )
 ```
 
 ### 市・区・郡別人口10万人あたり週間新規陽性者数
