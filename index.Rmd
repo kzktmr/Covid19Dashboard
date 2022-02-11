@@ -382,6 +382,7 @@ vaccination %>%
          age = factor(age, labels = c("65歳未満", "65歳以上", "年齢不明")),
          status = factor(status, labels = c("1回目", "2回目", "3回目"))) %>% 
   unite("status", age:status, sep = "") %>% 
+  filter(date >= max(date) - 365) %>%
   hchart("column", hcaes(x = date, y = count, group = status), 
          zoomType = "xy",
          colorKey = "status") %>% 
@@ -400,6 +401,7 @@ vaccination %>%
 ### 接種率の推移（％）
 ```{r}
 vaccination_rate %>% 
+  filter(date >= max(date) - 365) %>%
   hchart("line", hcaes(x = date, y = ratio, group = status), 
          zoomType = "x",
          colorKey = "status") %>% 
@@ -427,7 +429,7 @@ Rows
 newlycases %>%
   select(date, value = detected) %>% 
   mutate(ma = roll_meanr(value, 7)) %>% 
-  filter(date >= as.Date("2021-01-01")) -> tmp
+  filter(date >= max(date) - 365) -> tmp
 hchart(tmp, "column", hcaes(x = date, y = value), name = "新規陽性者数") %>% 
   hc_xAxis(title = FALSE) %>% 
   hc_yAxis(title = FALSE) %>% 
@@ -449,7 +451,7 @@ hchart(tmp, "column", hcaes(x = date, y = value), name = "新規陽性者数") %
 inspection %>% 
   select(date, value = inspected) %>% 
   mutate(ma = roll_meanr(value, 7)) %>% 
-  filter(date >= "2021-01-01") -> tmp
+  filter(date >= max(date) - 365) -> tmp
 tmp %>% hchart("column", hcaes(x = date, y = value), name = "PCR等検査数") %>% 
   hc_xAxis(title = FALSE) %>% 
   hc_yAxis(title = FALSE) %>% 
@@ -475,7 +477,7 @@ newlycases %>%
   mutate(detected_sum = roll_sumr(detected, 7),
          value = detected_sum / lag(detected_sum, 7)) %>% 
   select(date, value) %>% 
-  filter(date >= as.Date("2021-01-01")) %>% 
+  filter(date >= max(date) - 365) %>%
   hchart("line", hcaes(x = date, y = value), name = "先週今週比") %>% 
   hc_xAxis(title = FALSE) %>% 
   hc_yAxis(title = FALSE, 
@@ -503,7 +505,7 @@ patients %>%
   mutate(across(-date, replace_na, 0)) %>% 
   mutate(across(-date, roll_sumr, n = 7)) %>% 
   mutate(value = (`20代` + `30代`) / 合計 * 100) %>% 
-  select(date, value) %>% filter(date >= "2021-01-01") %>% 
+  select(date, value) %>% filter(date >= max(date) - 365) %>%
   hchart("line", hcaes(x = date, y = value), name = "若者割合") %>% 
   hc_xAxis(title = FALSE) %>% 
   hc_yAxis(title = FALSE) %>% 
@@ -530,7 +532,7 @@ situation %>%
   mutate(name = str_remove(name, "の者の数$"),
          name = factor(name, levels = c("自宅待機等", "宿泊療養中", "入院中"))) %>% 
   select(date, name, value) %>% 
-  filter(date >= "2021-01-01") %>% 
+  filter(date >= max(date) - 365) %>%
   hchart("area", hcaes(x = date, y = value, group = name, name = date)) %>% 
   hc_xAxis(title = FALSE) %>% 
   hc_yAxis(title = FALSE) %>% 
@@ -554,7 +556,7 @@ situation %>%
          discharge = discharge + dead,
          across(where(is.numeric), RcppRoll::roll_meanr, n = 7)) %>%
   select(date, 感染確認 = positive, `回復・死亡` = discharge) %>%
-  filter(date >= "2021-01-01") %>% pivot_longer(2:3) %>%
+  filter(date >= max(date) - 365) %>% pivot_longer(2:3) %>%
   hchart("line", hcaes(x = date, y = value, group = name, name = date)) %>% 
   hc_xAxis(title = FALSE) %>% 
   hc_yAxis(title = FALSE, labels = list(format = "{value:,.0f}")) %>% 
@@ -572,7 +574,7 @@ Rows
 ### 重症者数（人）
 ```{r}
 severe_cases %>% 
-  filter(date>= "2021-01-01") %>% 
+  filter(date >= max(date) - 365) %>%
   hchart("line", hcaes(x = date, y = severe_cases), name = "重傷者数") %>% 
   hc_xAxis(title = FALSE) %>% 
   hc_yAxis(title = FALSE) %>% 
@@ -591,7 +593,7 @@ situation %>%
   filter(name == "死亡者数累計") %>%
   mutate(dead = value - lag(value),
          ma = roll_mean(dead, n = 7, fill = NA)) %>% select(-name) %>% 
-  filter(date >= "2021-01-01") -> tmp
+  filter(date >= max(date) - 365) -> tmp
 tmp %>% hchart("column", hcaes(x = date, y = dead), name = "死亡者者") %>% 
   hc_xAxis(title = FALSE) %>% 
   hc_yAxis(title = FALSE) %>% 
@@ -623,7 +625,7 @@ patients %>%
   complete(date = full_seq(date, 1)) %>%
   mutate(across(-date, replace_na, 0)) %>% 
   mutate(across(-date, roll_sumr, n = 7)) %>% 
-  filter(date >= "2021-01-01") %>% pivot_longer(-date) %>% 
+  filter(date >= max(date) - 365) %>% pivot_longer(-date) %>% 
   left_join(age_pop, by = c("name" = "age10")) %>% 
   mutate(age = factor(name, levels = c("10歳未満", str_c(seq(10, 80, 10), "代"), "90代以上"), labels = str_c(seq(0, 90, 10), "~", c(seq(9, 89, 10), "")))) %>% 
   mutate(value = value * 1e5 / population) %>% arrange(date, age) %>% 
@@ -681,7 +683,7 @@ by_region %>%
   pivot_longer(-date) %>% mutate(name = str_c(name, "地域")) %>% 
   left_join(population) %>% mutate(value = value / population * 100000) %>%
   mutate(name = factor(name, levels = c("北九州地域", "福岡地域", "筑後地域", "筑豊地域"))) %>%
-  filter(date >= "2021-01-01") %>% 
+  filter(date >= max(date) - 365) %>%
   hchart("line", hcaes(x = date, y = value, group = name, name = date)) %>% 
   hc_xAxis(title = FALSE) %>% 
   hc_yAxis(title = FALSE) %>% 
