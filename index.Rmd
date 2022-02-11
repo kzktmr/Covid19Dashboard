@@ -55,6 +55,11 @@ md <- function(x){
 pop <- function(city){
   city_pop %>% filter(name == city) %>% pull(population)
 }
+fmt <- function(x){
+  x <- sprintf("%.1f", x) %>% str_split("\\.") %>% unlist()
+  x <- format(as.integer(x[1]), big.mark = ",") %>% str_c(x[2], sep = ".")
+  return(x)
+}
 ```
 
 
@@ -75,7 +80,7 @@ detected <- newlycases %>%
   select(date, value, increase)
 detected_value <- detected %>% last_value(value)
 detected_increase <- detected %>% last_value(increase)
-valueBox(sprintf("%.1f", detected_value), 
+valueBox(fmt(detected_value), 
          caption = "10万人あたり週間新規感染者数（人）",
          icon = ifelse(detected_increase, "fa-arrow-up", "fa-arrow-down"),
          color = ifelse(detected_value >= 25, "danger", 
@@ -136,7 +141,7 @@ total_patient <-
   select(date, value, increase) %>% filter(date >= as.Date("2021-01-01"))
 total_patient_value <- total_patient %>% last_value(value)
 total_patient_increase <- total_patient %>% last_value(increase)
-valueBox(sprintf("%.1f", total_patient_value), 
+valueBox(fmt(total_patient_value), 
          caption = "10万人あたり療養者数（人）",
          icon = ifelse(total_patient_increase, "fa-arrow-up", "fa-arrow-down"),
          color = ifelse(total_patient_value >= 30, "danger", 
@@ -197,7 +202,7 @@ detected %>% filter(date >= max(date) - 365) %>%
              )
            ) %>%
   hc_xAxis(title = FALSE) %>%
-  hc_tooltip(pointFormat = "<b>{point.value:.1f}</b> 人") %>% 
+  hc_tooltip(pointFormat = "<b>{point.value:,.1f}</b> 人") %>% 
   hc_chart(zoomType = "x",
            resetZoomButton = list(
              position = list(align = "left")
@@ -262,7 +267,7 @@ total_patient %>% filter(date >= max(date) - 365) %>%
              )
            ) %>% 
   hc_xAxis(title = FALSE) %>% 
-  hc_tooltip(pointFormat = "<b>{point.value:.1f}</b> 人") %>% 
+  hc_tooltip(pointFormat = "<b>{point.value:,.1f}</b> 人") %>% 
   hc_chart(zoomType = "x",
            resetZoomButton = list(
              position = list(align = "left")
