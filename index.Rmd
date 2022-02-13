@@ -665,6 +665,7 @@ by_region <- patients %>%
                           str_detect(address, "^苅田町$") ~ "京都郡",
                           str_detect(address, "^大宰府市$") ~ "太宰府市",
                           str_detect(address, "^粕屋郡$") ~ "糟屋郡",
+                          str_detect(address, "^若宮市$") ~ "宮若市",
                           str_detect(address, "[都道府県]$") ~ NA_character_,
                           str_detect(address, ".*県.*市") ~ NA_character_,
                           str_detect(address, 
@@ -679,6 +680,7 @@ by_region <- patients %>%
                             TRUE ~ address)) %>% 
   filter(!is.na(city)) %>% 
   left_join(region, by = "city")
+# by_region %>% filter(is.na(county))
 by_region %>% 
   group_by(date, region) %>% count() %>% ungroup() %>% 
   pivot_wider(names_from = region, values_from = n, values_fill = 0) %>% 
