@@ -554,7 +554,7 @@ situation %>%
 ### 感染確認数と退院および死亡数（人）
 ```{r}
 situation %>%
-  filter(name %in% c("陽性者数累計", "退院者数累計", "死亡者数累計")) %>%
+  filter(name %in% c("陽性者数累計（疑似症患者を含む）", "退院者数累計", "死亡者数累計")) %>%
   pivot_wider() %>%
   select(date, positive = 陽性者数累計,
          discharge = 退院者数累計, dead = 死亡者数累計) %>%
