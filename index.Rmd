@@ -110,8 +110,9 @@ valueBox(sprintf("%.1f", untraceable_value),
 
 ### 検査等陽性率
 ```{r}
-positive_ratio <- newlycases %>% 
-  mutate(detected_sum = roll_sumr(detected, 7)) %>% left_join(inspection) %>% 
+positive_ratio <- situation %>% 
+  filter(name == "陽性者数累計（疑似症患者を除く）") %>% 
+  mutate(detected_sum = value - lag(value, 7)) %>% left_join(inspection) %>% 
   mutate(inspected_sum = roll_sumr(inspected, 7),
          value = detected_sum / inspected_sum * 100,
          increase = value > lag(value),
