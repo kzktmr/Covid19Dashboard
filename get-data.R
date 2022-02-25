@@ -6,6 +6,7 @@ library(ckanr)
 library(httr)
 library(ndjson)
 library(readxl)
+library(stringr)
 library(lubridate)
 
 ckanr_setup(url = "https://ckan.open-governmentdata.org/")
