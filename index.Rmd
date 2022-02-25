@@ -30,7 +30,7 @@ options(highcharter.lang = hcopts)
 # データ
 population  <- read_csv("data/population.csv")
 newlycases  <- read_csv("data/newlycases.csv")
-patients    <- read_csv("data/patients.csv")
+patients    <- read_csv("data/patients.csv") %>% mutate(untraceable = 1)
 inspection  <- read_csv("data/inspection.csv")
 situation   <- read_csv("data/situation.csv")
 sickbeds    <- read_csv("data/sickbeds.csv")
@@ -95,7 +95,7 @@ untraceable <- patients %>%
   mutate(untraceable = if_else(is.na(untraceable), "traceable", "untraceable")) %>% 
   pivot_wider(names_from = untraceable, values_from = n, values_fill = 0) %>% 
   complete(date = full_seq(date, 1), fill = list(untraceable = 0, traceable = 0)) %>% 
-  mutate(n = untraceable + traceable, sum_n = roll_sumr(n, 7),
+  mutate(n = rowSums(across(where(is.numeric))), sum_n = roll_sumr(n, 7),
          sum_u = roll_sumr(untraceable, 7), value = sum_u / sum_n * 100,
          increase = value > lag(value),
          date = as.Date(date)) %>% 
@@ -216,6 +216,7 @@ detected %>% filter(date >= max(date) - 365) %>%
 untraceable %>% filter(date >= max(date) - 365) %>%
   hchart("line", hcaes(x = date, y = value,)) %>% 
   hc_yAxis(title = FALSE,
+           min = 0,
            plotLines = list(
              list(value = 50, color = "#ff0000", width = 1)
              )
