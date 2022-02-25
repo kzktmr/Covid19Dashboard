@@ -16,7 +16,7 @@ jobs:
       - name: Install packages 
         run: |
           install.packages(c("readr", "tidyr", "dplyr", "ckanr"), type = "binary")
-          install.packages(c("httr", "ndjson"), type = "binary")
+          install.packages(c("httr", "ndjson", "readxl", "lubridate"), type = "binary")
         shell: Rscript {0}
       - name: Download the data
         run: Rscript get-data.R

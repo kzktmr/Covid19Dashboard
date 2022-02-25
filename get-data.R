@@ -5,6 +5,8 @@ library(readr)
 library(ckanr)
 library(httr)
 library(ndjson)
+library(readxl)
+library(lubridate)
 
 ckanr_setup(url = "https://ckan.open-governmentdata.org/")
 
@@ -86,3 +88,16 @@ severe_cases <-
   select(date, severe_cases = Fukuoka) # 
   
 write_csv(severe_cases, "data/severe_cases.csv")
+
+# 救急搬送困難事案
+tmp_file <- tempfile()
+download.file("https://www.fdma.go.jp/disaster/coronavirus/items/coronavirus_data.xlsx", tmp_file)
+tmp <- read_excel(tmp_file, skip = 5, col_names = FALSE) %>% 
+  rename(pref = "...1", city = "...2") %>% 
+  select(-pref) %>% filter(city %in% c("福岡市消防局", "北九州市消防局")) %>% 
+  pivot_longer(-city) %>% 
+  mutate(week = as.integer(str_extract(name, "[0-9]+")) - 2,
+         date = lubridate::ymd("2020-03-30") + lubridate::weeks(week - 1 )) %>% 
+  select(date, city, value)
+
+write_csv(tmp, "data/emergency_transport.csv")

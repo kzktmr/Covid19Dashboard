@@ -15,5 +15,7 @@
 * [オープンデータ](https://www.mhlw.go.jp/stf/covid-19/open-data.html)
 ### デジタル庁
 * [ワクチン接種状況オープンデータ](https://info.vrs.digital.go.jp/dashboard)
+### 消防庁
+* [各消防本部からの救急搬送困難事案に係る状況調査の結果（データベース）](https://www.fdma.go.jp/disaster/coronavirus/post-1.html)
 ### 総務省
 * [住民基本台帳に基づく人口、人口動態及び世帯数](https://www.soumu.go.jp/main_sosiki/jichi_gyousei/daityo/jinkou_jinkoudoutai-setaisuu.html)
