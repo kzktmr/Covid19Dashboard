@@ -60,8 +60,9 @@ write_csv(tmp, "data/inspection.csv")
 res <- resource_show("fa692fe1-9792-4127-a245-61a32f3e7448")
 
 tmp <- 
-  read_csv(res$url, col_types = "__D_ddd") %>% 
-  set_names(c("date", "bed", "severe_bed", "hotel_room"))
+  read_csv(res$url, col_types = "__D_ddd", skip = 1,
+           col_names = c("date", "bed", "severe_bed", "hotel_room")) %>% 
+  filter(date >= as.Date("2021-01-01") - 7)
 
 write_csv(tmp, "data/sickbeds.csv")
 
