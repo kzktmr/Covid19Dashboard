@@ -556,7 +556,7 @@ situation %>%
 situation %>%
   filter(name %in% c("陽性者数累計（疑似症患者を含む）", "退院者数累計", "死亡者数累計")) %>%
   pivot_wider() %>%
-  select(date, positive = 陽性者数累計,
+  select(date, positive = `陽性者数累計（疑似症患者を含む）`,
          discharge = 退院者数累計, dead = 死亡者数累計) %>%
   mutate(across(where(is.numeric), function(x){x - lag(x)}),
          discharge = discharge + dead,
