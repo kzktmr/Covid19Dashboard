@@ -617,6 +617,82 @@ tmp %>% hchart("column", hcaes(x = date, y = dead), name = "死亡者者") %>%
            )
 ```
 
+その他の指標③
+=====================================  
+
+Rows
+-------------------------------------
+
+### 重症病床使用率（％）
+```{r}
+severe_cases %>% left_join(sickbeds) %>% 
+  mutate(value = severe_cases / severe_bed * 100) %>% 
+  select(date, value) %>% 
+  filter(date >= max(date) - 365) %>%
+  hchart("line", hcaes(x = date, y = value), name = "重症病床使用率") %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_yAxis(title = FALSE) %>% 
+    hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.1f}</b>%') %>% 
+  hc_chart(zoomType = "x",
+           resetZoomButton = list(
+             position = list(align = "left")
+             )
+           )
+```
+
+### 宿泊療養居室使用率（％）
+```{r}
+situation %>% filter(name == "宿泊療養中の者の数") %>% left_join(sickbeds) %>% 
+  mutate(value = value / hotel_room * 100) %>% 
+  select(date, value) %>% 
+  filter(date >= max(date) - 365) %>%
+  hchart("line", hcaes(x = date, y = value), name = "宿泊療養居室使用率") %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_yAxis(title = FALSE) %>% 
+    hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.1f}</b>%') %>% 
+  hc_chart(zoomType = "x",
+           resetZoomButton = list(
+             position = list(align = "left")
+             )
+           )
+```
+
+Rows
+-------------------------------------
+
+### 確保病床入院率（％）
+```{r}
+situation %>% 
+  filter(name %in% c("入院中の者の数", "うち確保病床の入院者数")) %>% 
+  pivot_wider() %>%  
+  mutate(value = うち確保病床の入院者数 / 入院中の者の数 * 100) %>% 
+  select(date, value) %>% 
+  filter(date >= max(date) - 365) %>%
+  hchart("line", hcaes(x = date, y = value), name = "確保病床入院率") %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_yAxis(title = FALSE) %>% 
+    hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.1f}</b>%') %>% 
+  hc_chart(zoomType = "x",
+           resetZoomButton = list(
+             position = list(align = "left")
+             )
+           )
+```
+
+### 救急搬送困難事案数（件）
+```{r}
+transport %>% filter(date >= max(date) - 365) %>% 
+  hchart("line", hcaes(x = date, y = value, group = city)) %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_yAxis(title = FALSE) %>% 
+    hc_tooltip(pointFormat = '<span style="color:{series.color}">●</span> {series.name}:<b> {point.value:,.0f}</b>件') %>% 
+  hc_chart(zoomType = "x",
+           resetZoomButton = list(
+             position = list(align = "left")
+             )
+           )
+```
+
 年代別感染状況
 =====================================  
 
