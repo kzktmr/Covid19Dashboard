@@ -33,7 +33,9 @@ newlycases  <- read_csv("data/newlycases.csv")
 patients    <- read_csv("data/patients.csv") %>% mutate(untraceable = 1)
 inspection  <- read_csv("data/inspection.csv")
 situation   <- read_csv("data/situation.csv")
-sickbeds    <- read_csv("data/sickbeds.csv")
+sickbeds    <- read_csv("data/sickbeds.csv") %>% 
+  add_row(date = Sys.Date()) %>% complete(date = full_seq(date, 1)) %>%
+  fill(-date) %>% distinct()
 vaccination <- read_csv("data/vaccination.csv")
 severe_cases<- read_csv("data/severe_cases.csv")
 transport   <- read_csv("data/emergency_transport.csv")
