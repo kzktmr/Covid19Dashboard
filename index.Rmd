@@ -45,7 +45,7 @@ map         <- geojson_read("data/map.geojson")
 
 # 定数
 pref_pop <- population %>% filter(name == "県") %>% pull()
-age_pop2 <- tibble(age = c("-64", "65-"), pop = c(3029330, 1412467))
+age_pop2 <- tibble(age = c("TTL", "65-"), pop = c(5123371, 1405740))
 
 # 関数
 last_value <- function(dat, col){
@@ -322,16 +322,18 @@ hospital_ratio %>% filter(date >= max(date) - 365) %>%
 =====================================  
 
 ```{r include=FALSE}
-vaccination_rate <- 
-  vaccination %>% filter(age != "UNK") %>% 
-  group_by(date, age, status) %>% 
-  summarise(count = sum(count), .groups = "keep") %>% 
-  ungroup(date) %>% 
+vaccination_rate <-
+  vaccination %>% #filter(age != "UNK") 
+  group_by(date, age, status) %>% summarise(count = sum(count), .groups = "keep") %>% 
+  ungroup(age) %>% 
+  summarise(add_row(cur_data(), age = "TTL", count = sum(count))) %>% 
+  filter(age %in% c("65-", "TTL")) %>% 
+  group_by(age, status) %>% 
   mutate(cum_sum = cumsum(count)) %>% 
   left_join(age_pop2) %>% 
   mutate(ratio =  cum_sum/ pop * 100) %>% ungroup() %>% 
   mutate(date = as.Date(date), 
-         age = factor(age, labels = c("65歳未満", "65歳以上")),
+         age = factor(age, labels = c("高齢", "全体"), levels = c("65-", "TTL")),
          status = factor(status, labels = c("1回目", "2回目", "3回目"))) %>% 
   unite("status", age:status, sep = "") %>% 
   arrange(date) 
@@ -340,46 +342,46 @@ vaccination_rate <-
 Row
 -----------------------------------------------------------------------
 
-### 接種率（65歳未満，1回目）
+### 接種率（高齢者，1回目）
 ```{r}
-under65_1st <- vaccination_rate %>% 
-  filter(status == "65歳未満1回目") %>% last_value(ratio)
-gauge(sprintf("%.1f", under65_1st), min = 0, max = 100, symbol = '%')
+elder_1st <- vaccination_rate %>% 
+  filter(status == "高齢1回目") %>% last_value(ratio)
+gauge(sprintf("%.1f", elder_1st), min = 0, max = 100, symbol = '%')
 ```
 
-### 接種率（65歳未満，2回目）
+### 接種率（高齢者，2回目）
 ```{r}
-under65_2nd <- vaccination_rate %>% 
-  filter(status == "65歳未満2回目") %>% last_value(ratio)
-gauge(sprintf("%.1f", under65_2nd), min = 0, max = 100, symbol = '%')
+elder_2nd <- vaccination_rate %>% 
+  filter(status == "高齢2回目") %>% last_value(ratio)
+gauge(sprintf("%.1f", elder_2nd), min = 0, max = 100, symbol = '%')
 ```
 
-### 接種率（65歳未満，3回目）
+### 接種率（高齢者，3回目）
 ```{r}
-under65_3rd <- vaccination_rate %>% 
-  filter(status == "65歳未満3回目") %>% last_value(ratio)
-gauge(sprintf("%.1f", under65_3rd), min = 0, max = 100, symbol = '%')
+elder_3rd <- vaccination_rate %>% 
+  filter(status == "高齢3回目") %>% last_value(ratio)
+gauge(sprintf("%.1f", elder_3rd), min = 0, max = 100, symbol = '%')
 ```
 
-### 接種率（65歳以上，1回目）
+### 接種率（全人口，1回目）
 ```{r}
-over65_1st <- vaccination_rate %>% 
-  filter(status == "65歳以上1回目") %>% last_value(ratio)
-gauge(sprintf("%.1f", over65_1st), min = 0, max = 100, symbol = '%')
+total_1st <- vaccination_rate %>% 
+  filter(status == "全体1回目") %>% last_value(ratio)
+gauge(sprintf("%.1f", total_1st), min = 0, max = 100, symbol = '%')
 ```
 
-### 接種率（65歳以上，2回目）
+### 接種率（全人口，2回目）
 ```{r}
-over65_2nd <- vaccination_rate %>% 
-  filter(status == "65歳以上2回目") %>% last_value(ratio)
-gauge(sprintf("%.1f", over65_2nd), min = 0, max = 100, symbol = '%')
+total_2nd <- vaccination_rate %>% 
+  filter(status == "全体2回目") %>% last_value(ratio)
+gauge(sprintf("%.1f", total_2nd), min = 0, max = 100, symbol = '%')
 ```
 
-### 接種率（65歳以上，3回目）
+### 接種率（全人口，3回目）
 ```{r}
-over65_3rd <- vaccination_rate %>% 
-  filter(status == "65歳以上3回目") %>% last_value(ratio)
-gauge(sprintf("%.1f", over65_3rd), min = 0, max = 100, symbol = '%')
+total_3rd <- vaccination_rate %>% 
+  filter(status == "全体3回目") %>% last_value(ratio)
+gauge(sprintf("%.1f", total_3rd), min = 0, max = 100, symbol = '%')
 ```
 
 Row
@@ -424,9 +426,6 @@ vaccination_rate %>%
              )
            )
 ```
-
-> 65歳未満の接種率は，15〜64歳の人口を基に計算しています。
-
 
 その他の指標①
 =====================================  
