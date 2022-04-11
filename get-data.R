@@ -28,6 +28,7 @@ if(str_detect(res$url, "\\.csv$")){
   tmp <- read_excel(tmp_file, skip = 1, col_names = c("date", "address", "age", "sex"),
                     col_types = c("skip", "skip", "skip", "date", "skip", 
                                   "text", "text", "text")) %>% 
+    mutate(date = as.Date(date)) %>% 
     filter(!is.na(date), date >= as.Date("2021-01-01") - 7)
   write_csv(tmp, "data/patients.csv")
 }
