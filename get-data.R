@@ -16,12 +16,22 @@ ckanr_setup(url = "https://ckan.open-governmentdata.org/")
 # res <- resource_show("419f6cff-e74a-49b3-9f3c-7b425e5f5228")
 res <- resource_show("9d32b7ee-5bfe-4b3c-a582-ea56f3b0afd9")
 
-tmp <- read_csv(res$url, skip = 1, col_types = "___D_cccl__",
-                col_names = c("date", "address", "age", "sex", "untraceable")) %>% 
-  filter(!is.na(date), date >= as.Date("2021-01-01") - 7)
+# Mon Apr 11 09:38:58 2022 ------------------------------
+if(str_detect(res$url, "\\.csv$")){
+  tmp <- read_csv(res$url, skip = 1, col_types = "___D_cccl__",
+                  col_names = c("date", "address", "age", "sex", "untraceable")) %>% 
+    filter(!is.na(date), date >= as.Date("2021-01-01") - 7)
+  write_csv(tmp, "data/patients.csv")
+}else if(str_detect(res$url, "\\.xlsx$")){
+  tmp_file <- tempfile()
+  download.file(res$url, tmp_file)
+  tmp <- read_excel(tmp_file, skip = 1, col_names = c("date", "address", "age", "sex"),
+                    col_types = c("skip", "skip", "skip", "date", "skip", 
+                                  "text", "text", "text")) %>% 
+    filter(!is.na(date), date >= as.Date("2021-01-01") - 7)
+  write_csv(tmp, "data/patients.csv")
+}
   
-write_csv(tmp, "data/patients.csv")
-
 # 福岡県　新型コロナウイルス感染症　新規陽性者数
 # res <- resource_show("bd25a096-b060-428a-bc85-91c1715fc540")
 # res <- resource_show("949b90ee-25df-4423-a8f4-d58295676339")
