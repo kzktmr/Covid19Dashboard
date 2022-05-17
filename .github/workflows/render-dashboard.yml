@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -17,9 +17,9 @@ jobs:
         uses: r-lib/actions/setup-pandoc@v2
       - name: Install packages 
         run: |
-          install.packages(c("readr", "tidyr", "dplyr", "stringr", "purrr"))
-          install.packages(c("lubridate", "RcppRoll", "geojsonio"))
-          install.packages(c("highcharter", "flexdashboard", "DT", "rmarkdown"))
+          install.packages(c("readr", "tidyr", "dplyr", "stringr", "purrr"), type = "binary")
+          install.packages(c("lubridate", "RcppRoll", "geojsonio"), type = "binary")
+          install.packages(c("highcharter", "flexdashboard", "DT", "rmarkdown"), type = "binary")
         shell: Rscript {0}
       - name: Render Dashboard
         run: Rscript -e 'rmarkdown::render("index.Rmd", output_dir = "docs")'
