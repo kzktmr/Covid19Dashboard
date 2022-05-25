@@ -14,7 +14,8 @@ ckanr_setup(url = "https://ckan.open-governmentdata.org/")
 # 福岡県　新型コロナウイルス感染症　陽性者発表情報
 # res <- resource_show("0430a12e-568c-4a6a-bed8-51621f47c6e5")
 # res <- resource_show("419f6cff-e74a-49b3-9f3c-7b425e5f5228")
-res <- resource_show("9d32b7ee-5bfe-4b3c-a582-ea56f3b0afd9")
+# res <- resource_show("9d32b7ee-5bfe-4b3c-a582-ea56f3b0afd9")
+res <- resource_show("90cd005a-8d70-468e-a9b5-d36aad4eb3ca")
 
 # Mon Apr 11 09:38:58 2022 ------------------------------
 if(str_detect(res$url, "\\.csv$")){
