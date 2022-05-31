@@ -334,7 +334,7 @@ vaccination_rate <-
   mutate(ratio =  cum_sum/ pop * 100) %>% ungroup() %>% 
   mutate(date = as.Date(date), 
          age = factor(age, labels = c("高齢", "全体"), levels = c("65-", "TTL")),
-         status = factor(status, labels = c("1回目", "2回目", "3回目"))) %>% 
+         status = factor(status, labels = c("1回目", "2回目", "3回目", "4回目"))) %>% 
   unite("status", age:status, sep = "") %>% 
   arrange(date) 
 ```
