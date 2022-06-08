@@ -37,7 +37,8 @@ if(str_detect(res$url, "\\.csv$")){
 # 福岡県　新型コロナウイルス感染症　新規陽性者数
 # res <- resource_show("bd25a096-b060-428a-bc85-91c1715fc540")
 # res <- resource_show("949b90ee-25df-4423-a8f4-d58295676339")
-res <- resource_show("3e306520-17e0-4684-8b88-bddf748c68bd")
+# res <- resource_show("3e306520-17e0-4684-8b88-bddf748c68bd")
+res <- resource_show("cbce5bf0-6c04-4f35-a0fd-748f9024d20f")
 
 tmp <- read_csv(res$url, skip = 1, col_types = "___D_dd", 
                 col_names = c("date", "detected", "detected_cum")) %>% 
