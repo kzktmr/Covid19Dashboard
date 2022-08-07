@@ -214,7 +214,9 @@ detected %>% filter(date >= max(date) - 365) %>%
            resetZoomButton = list(
              position = list(align = "left")
              )
-           )
+           ) %>% 
+  hc_add_dependency("modules/exporting.js") %>% 
+  hc_add_dependency("modules/offline-exporting.js")
 ```
 
 ### 感染経路不明割合（％）
