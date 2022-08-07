@@ -215,8 +215,7 @@ detected %>% filter(date >= max(date) - 365) %>%
              position = list(align = "left")
              )
            ) %>% 
-  hc_add_dependency("modules/exporting.js") %>% 
-  hc_add_dependency("modules/offline-exporting.js")
+  hc_exporting(enabled = TRUE)
 ```
 
 ### 感染経路不明割合（％）
@@ -236,7 +235,8 @@ untraceable %>% filter(date >= max(date) - 365) %>%
            resetZoomButton = list(
              position = list(align = "left")
              )
-           )
+           ) %>% 
+  hc_exporting(enabled = TRUE)
 ```
 
 ### 検査等陽性率（％）
@@ -256,7 +256,8 @@ positive_ratio %>% filter(date >= max(date) - 365) %>%
            resetZoomButton = list(
              position = list(align = "left")
              )
-           )
+           ) %>% 
+  hc_exporting(enabled = TRUE)
 ```
 
 Row
@@ -282,7 +283,8 @@ total_patient %>% filter(date >= max(date) - 365) %>%
            resetZoomButton = list(
              position = list(align = "left")
              )
-           )
+           ) %>% 
+  hc_exporting(enabled = TRUE)
 ```
 
 ### 確保病床使用率（％）
@@ -301,7 +303,8 @@ bed_occupancy %>% filter(date >= max(date) - 365) %>%
            resetZoomButton = list(
              position = list(align = "left")
              )
-           )
+           ) %>% 
+  hc_exporting(enabled = TRUE)
 ```
 
 ### 入院率（％）
@@ -320,7 +323,8 @@ hospital_ratio %>% filter(date >= max(date) - 365) %>%
            resetZoomButton = list(
              position = list(align = "left")
              )
-           )
+           ) %>% 
+  hc_exporting(enabled = TRUE)
 ```
 
 ワクチン接種状況
@@ -412,7 +416,8 @@ vaccination %>%
            resetZoomButton = list(
              position = list(align = "left")
              )
-           )
+           ) %>% 
+  hc_exporting(enabled = TRUE)
 ```
 
 ### 接種率の推移（％）
@@ -429,7 +434,8 @@ vaccination_rate %>%
            resetZoomButton = list(
              position = list(align = "left")
              )
-           )
+           ) %>% 
+  hc_exporting(enabled = TRUE)
 ```
 
 その他の指標①
@@ -457,7 +463,8 @@ hchart(tmp, "column", hcaes(x = date, y = value), name = "新規陽性者数") %
            resetZoomButton = list(
              position = list(align = "left")
              )
-           )
+           ) %>% 
+  hc_exporting(enabled = TRUE)
 ```
 
 ### PCR等検査件数（件）
@@ -479,7 +486,8 @@ tmp %>% hchart("column", hcaes(x = date, y = value), name = "PCR等検査数") %
            resetZoomButton = list(
              position = list(align = "left")
              )
-           )
+           ) %>% 
+  hc_exporting(enabled = TRUE)
 ```
 
 Rows
@@ -505,7 +513,8 @@ newlycases %>%
            resetZoomButton = list(
              position = list(align = "left")
              )
-           )
+           ) %>% 
+  hc_exporting(enabled = TRUE)
 ```
 
 ### 週間新規感染者の若者割合（％）
@@ -530,7 +539,8 @@ patients %>%
            resetZoomButton = list(
              position = list(align = "left")
              )
-           )
+           ) %>% 
+  hc_exporting(enabled = TRUE)
 ```
 
 その他の指標②
@@ -556,7 +566,8 @@ situation %>%
            resetZoomButton = list(
              position = list(align = "left")
              )
-           )
+           ) %>% 
+  hc_exporting(enabled = TRUE)
 ```
 
 ### 感染確認数と退院および死亡数（人）
@@ -579,7 +590,8 @@ situation %>%
            resetZoomButton = list(
              position = list(align = "left")
              )
-           )
+           ) %>% 
+  hc_exporting(enabled = TRUE)
 ```
 
 Rows
@@ -597,7 +609,8 @@ severe_cases %>%
            resetZoomButton = list(
              position = list(align = "left")
              )
-           )
+           ) %>% 
+  hc_exporting(enabled = TRUE)
 ```
 
 ### 死亡者数（人）
@@ -621,7 +634,8 @@ tmp %>% hchart("column", hcaes(x = date, y = dead), name = "死亡者者") %>%
            resetZoomButton = list(
              position = list(align = "left")
              )
-           )
+           ) %>% 
+  hc_exporting(enabled = TRUE)
 ```
 
 その他の指標③
@@ -644,7 +658,8 @@ severe_cases %>% left_join(sickbeds) %>%
            resetZoomButton = list(
              position = list(align = "left")
              )
-           )
+           ) %>% 
+  hc_exporting(enabled = TRUE)
 ```
 
 ### 宿泊療養居室使用率（％）
@@ -661,7 +676,8 @@ situation %>% filter(name == "宿泊療養中の者の数") %>% left_join(sickbe
            resetZoomButton = list(
              position = list(align = "left")
              )
-           )
+           ) %>% 
+  hc_exporting(enabled = TRUE)
 ```
 
 Rows
@@ -683,7 +699,8 @@ situation %>%
            resetZoomButton = list(
              position = list(align = "left")
              )
-           )
+           ) %>% 
+  hc_exporting(enabled = TRUE)
 ```
 
 ### 救急搬送困難事案数（件）
@@ -697,7 +714,8 @@ transport %>% filter(date >= max(date) - 365) %>%
            resetZoomButton = list(
              position = list(align = "left")
              )
-           )
+           ) %>% 
+  hc_exporting(enabled = TRUE)
 ```
 
 年代別感染状況
@@ -727,7 +745,8 @@ hchart("line", hcaes(x = date, y = value, group = age, name = date)) %>%
            resetZoomButton = list(
              position = list(align = "left")
              )
-           )
+           ) %>% 
+  hc_exporting(enabled = TRUE)
 ```
 
 地域別感染状況{data-orientation=columns}
@@ -785,7 +804,8 @@ by_region %>%
            resetZoomButton = list(
              position = list(align = "left")
              )
-           )
+           ) %>% 
+  hc_exporting(enabled = TRUE)
 ```
 
 ### 市・区・郡別人口10万人あたり週間新規陽性者数
@@ -846,7 +866,8 @@ highchart() %>%
                                                                    format = "{y:,.1f}"))),
                               subtitle = list(floating = TRUE, text = "point.region")
                ))) %>% 
-  hc_mapNavigation(enabled = TRUE)
+  hc_mapNavigation(enabled = TRUE) %>% 
+  hc_exporting(enabled = TRUE)
 ```
 
 
