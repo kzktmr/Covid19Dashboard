@@ -200,6 +200,9 @@ Row
 detected %>% filter(date >= max(date) - 365) %>% 
   hchart("line", hcaes(x = date, y = value)) %>% 
   hc_yAxis(title = FALSE,
+           labels = list(
+             format = "{value:,.0f}"
+           ),
            plotLines = list(
              list(value = 25, color = "#ff0000", width = 1),
              list(value = 15, color = "#ffa500", width = 1)
