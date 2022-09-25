@@ -12,47 +12,38 @@ library(lubridate)
 ckanr_setup(url = "https://ckan.open-governmentdata.org/")
 
 # 福岡県　新型コロナウイルス感染症　陽性者発表情報
-# res <- resource_show("0430a12e-568c-4a6a-bed8-51621f47c6e5")
-# res <- resource_show("419f6cff-e74a-49b3-9f3c-7b425e5f5228")
-# res <- resource_show("9d32b7ee-5bfe-4b3c-a582-ea56f3b0afd9")
-res <- resource_show("90cd005a-8d70-468e-a9b5-d36aad4eb3ca")
-
-# Mon Apr 11 09:38:58 2022 ------------------------------
-if(str_detect(res$url, "\\.csv$")){
-  tmp <- read_csv(res$url, skip = 1, col_types = "___D_cccl__",
-                  col_names = c("date", "address", "age", "sex", "untraceable")) %>% 
-    filter(!is.na(date), date >= as.Date("2021-01-01") - 7)
-  write_csv(tmp, "data/patients.csv")
-}else if(str_detect(res$url, "\\.xlsx$")){
-  tmp_file <- tempfile()
-  download.file(res$url, tmp_file)
-  tmp <- read_excel(tmp_file, skip = 1, col_names = c("date", "address", "age", "sex"),
-                    col_types = c("skip", "skip", "skip", "date", "skip", 
-                                  "text", "text", "text")) %>% 
-    mutate(date = as.Date(date)) %>% 
-    filter(!is.na(date), date >= as.Date("2021-01-01") - 7)
-  write_csv(tmp, "data/patients.csv")
-}
+# package_search("新型コロナウイルス感染症 陽性者発表情報")
+pac <- package_show("8a9688c2-7b9f-4347-ad6e-de3b339ef740")
+res <- pac$resources
+url <- res %>% bind_rows() %>% pull(url)
+  
+tmp <- lapply(url, read_csv, skip = 1, col_types = "___D_cccl__",
+              col_names = c("date", "address", "age", "sex", "untraceable")) %>% 
+  bind_rows() %>% 
+  filter(!is.na(date), date >= as.Date("2021-01-01") - 7)
+  
+write_csv(tmp, "data/patients.csv")
   
 # 福岡県　新型コロナウイルス感染症　新規陽性者数
-# res <- resource_show("bd25a096-b060-428a-bc85-91c1715fc540")
-# res <- resource_show("949b90ee-25df-4423-a8f4-d58295676339")
-# res <- resource_show("3e306520-17e0-4684-8b88-bddf748c68bd")
-res <- resource_show("cbce5bf0-6c04-4f35-a0fd-748f9024d20f")
+# package_search("新型コロナウイルス感染症 新規陽性者数")
+pac <- package_show("412b1e1c-7c05-443e-8c1f-e8dfcff57b91")
+res <- pac$resources
+url <- res %>% bind_rows() %>% pull(url)
 
-tmp <- read_csv(res$url, skip = 1, col_types = "___D_dd", 
+tmp <- read_csv(url, skip = 1, col_types = "___D_dd", 
                 col_names = c("date", "detected", "detected_cum")) %>% 
   filter(date >= as.Date("2021-01-01") - 7)
 
 write_csv(tmp, "data/newlycases.csv")
 
 # 福岡県　新型コロナウイルス感染症　検査陽性者の状況
-# res <- resource_show("e3630e26-14c5-4cd0-b111-53e51b56b85a")
-# res <- resource_show("f9d172be-5cf7-4d89-aca5-cbcde79314e1")
-res <- resource_show("4470951b-5559-4778-9d02-33e66bbcc06f")
+# package_search("新型コロナウイルス感染症 検査陽性者の状況")
+pac <- package_show("fe943202-2db4-44f8-9686-9cf682690bb7")
+res <- pac$resources
+url <- res %>% bind_rows() %>% pull(url)
 
 tmp <- 
-  read_csv(res$url, col_types = "__Dcdddddddd") %>% 
+  read_csv(url, col_types = "__Dcdddddddd") %>% 
   rename(date = 公表_年月日, weekday = 曜日) %>% 
   filter(date >= as.Date("2021-01-01") - 7) %>% 
   pivot_longer(-(date:weekday)) 
@@ -60,23 +51,27 @@ tmp <-
 write_csv(tmp, "data/situation.csv")
 
 # 福岡県　新型コロナウイルス感染症　検査実施数
-# res <- resource_show("33e3a2ba-6d07-474c-9370-2885932b22e9")
-# res <- resource_show("dacd1366-2a49-4a1a-a508-73fc0f57b5ca")
-res <- resource_show("1aca4a7e-fda6-496c-badc-17a70964767c")
+# package_search("新型コロナウイルス感染症 検査実施数")
+pac <- package_show("ef64c68a-d89e-4b1b-a53f-d2535ebfa3a1")
+res <- pac$resources
+url <- res %>% bind_rows() %>% pull(url)
 
 tmp <- 
-  read_csv(res$url,
+  read_csv(url,
            col_types = "___D_____dd", skip = 1,
            col_names = c("date", "inspected", "inspected_cum")) %>% 
   filter(date >= as.Date("2021-01-01") - 7)
 
 write_csv(tmp, "data/inspection.csv")
 
-# 確保病床数
-res <- resource_show("fa692fe1-9792-4127-a245-61a32f3e7448")
+# 福岡県　新型コロナウイルス感染症　確保病床数及び宿泊療養居室数
+# package_search("新型コロナウイルス感染症 確保病床数及び宿泊療養居室数")
+pac <- package_show("c9efc321-6c10-448b-a859-555fd9ae8726")
+res <- pac$resources
+url <- res %>% bind_rows() %>% pull(url)
 
 tmp <- 
-  read_csv(res$url, col_types = "__D_ddd", skip = 1,
+  read_csv(url, col_types = "__D_ddd", skip = 1,
            col_names = c("date", "bed", "severe_bed", "hotel_room")) %>% 
   filter(date >= as.Date("2021-01-01") - 7)
 
