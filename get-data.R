@@ -11,58 +11,80 @@ library(lubridate)
 
 ckanr_setup(url = "https://ckan.open-governmentdata.org/")
 
-# 福岡県　新型コロナウイルス感染症　陽性者発表情報
+# 福岡県　新型コロナウイルス感染症　陽性者発表情報 ----
 # package_search("新型コロナウイルス感染症 陽性者発表情報")
-pac <- package_show("8a9688c2-7b9f-4347-ad6e-de3b339ef740")
-res <- pac$resources
-url <- res %>% bind_rows() %>% pull(url)
+# 令和4年9月26日まで 
+# pac <- package_show("8a9688c2-7b9f-4347-ad6e-de3b339ef740")
+# res <- pac$resources
+# url <- res %>% bind_rows() %>% pull(url)
+#   
+# tmp <- lapply(url, read_csv, skip = 1, col_types = "___D_cccl__",
+#               col_names = c("date", "address", "age", "sex", "untraceable")) %>% 
+#   bind_rows() %>% 
+#   filter(!is.na(date), date >= as.Date("2021-01-01") - 7)
+#   
+# write_csv(tmp, "data/patients.csv")
   
-tmp <- lapply(url, read_csv, skip = 1, col_types = "___D_cccl__",
-              col_names = c("date", "address", "age", "sex", "untraceable")) %>% 
-  bind_rows() %>% 
-  filter(!is.na(date), date >= as.Date("2021-01-01") - 7)
-  
-write_csv(tmp, "data/patients.csv")
-  
-# 福岡県　新型コロナウイルス感染症　新規陽性者数
+# 福岡県　新型コロナウイルス感染症　新規陽性者数 ----
 # package_search("新型コロナウイルス感染症 新規陽性者数")
 pac <- package_show("412b1e1c-7c05-443e-8c1f-e8dfcff57b91")
 res <- pac$resources
 url <- res %>% bind_rows() %>% pull(url)
 
-tmp <- read_csv(url, skip = 1, col_types = "___D_dd", 
-                col_names = c("date", "detected", "detected_cum")) %>% 
+tmp <- read_csv(url, skip = 1, col_types = "___D_dddddddddddddddd", 
+                col_names = c("date", 
+                              "age_00", "age_01_04", "age_05_09", "age_10_19", 
+                              "age_20_29", "age_30_39", "age_40_49", "age_50_59", 
+                              "age_60_64", "age_65_69", "age_70_79", "age_80_89",
+                              "age_90_", "age_unknown",
+                              "detected", "detected_cum")) %>% 
   filter(date >= as.Date("2021-01-01") - 7)
 
 write_csv(tmp, "data/newlycases.csv")
 
-# 福岡県　新型コロナウイルス感染症　検査陽性者の状況
+# 福岡県　新型コロナウイルス感染症　検査陽性者の状況 ----
 # package_search("新型コロナウイルス感染症 検査陽性者の状況")
-pac <- package_show("fe943202-2db4-44f8-9686-9cf682690bb7")
+# 令和4年9月26日まで 
+# pac <- package_show("fe943202-2db4-44f8-9686-9cf682690bb7")
+# res <- pac$resources
+# url <- res %>% bind_rows() %>% pull(url)
+# 
+# tmp <- 
+#   read_csv(url, col_types = "__Dcdddddddd") %>% 
+#   rename(date = 公表_年月日, weekday = 曜日) %>% 
+#   filter(date >= as.Date("2021-01-01") - 7) %>% 
+#   pivot_longer(-(date:weekday)) 
+# 
+# write_csv(tmp, "data/situation.csv")
+
+#　福岡県　新型コロナウイルス感染症　陽性者の状況 ----
+package_search("新型コロナウイルス感染症 陽性者の状況")
+
+pac <- package_show("3662c319-d756-4c0d-baee-0597b5c1ec99")
 res <- pac$resources
 url <- res %>% bind_rows() %>% pull(url)
 
-tmp <- 
-  read_csv(url, col_types = "__Dcdddddddd") %>% 
-  rename(date = 公表_年月日, weekday = 曜日) %>% 
-  filter(date >= as.Date("2021-01-01") - 7) %>% 
+tmp <- read_csv(url, col_types = "__Dcdddddddd") %>% 
+  rename(date = 日付, weekday = 曜日) %>% 
+  filter(date >= as.Date("2021-01-01") - 7) %>%
   pivot_longer(-(date:weekday)) 
 
-write_csv(tmp, "data/situation.csv")
+write_csv(tmp, "data/situation2.csv")
 
-# 福岡県　新型コロナウイルス感染症　検査実施数
+# 福岡県　新型コロナウイルス感染症　検査実施数 ----
 # package_search("新型コロナウイルス感染症 検査実施数")
-pac <- package_show("ef64c68a-d89e-4b1b-a53f-d2535ebfa3a1")
-res <- pac$resources
-url <- res %>% bind_rows() %>% pull(url)
-
-tmp <- 
-  read_csv(url,
-           col_types = "___D_____dd", skip = 1,
-           col_names = c("date", "inspected", "inspected_cum")) %>% 
-  filter(date >= as.Date("2021-01-01") - 7)
-
-write_csv(tmp, "data/inspection.csv")
+# 令和4年9月26日まで 
+# pac <- package_show("ef64c68a-d89e-4b1b-a53f-d2535ebfa3a1")
+# res <- pac$resources
+# url <- res %>% bind_rows() %>% pull(url)
+# 
+# tmp <- 
+#   read_csv(url,
+#            col_types = "___D_____dd", skip = 1,
+#            col_names = c("date", "inspected", "inspected_cum")) %>% 
+#   filter(date >= as.Date("2021-01-01") - 7)
+# 
+# write_csv(tmp, "data/inspection.csv")
 
 # 福岡県　新型コロナウイルス感染症　確保病床数及び宿泊療養居室数
 # package_search("新型コロナウイルス感染症 確保病床数及び宿泊療養居室数")
