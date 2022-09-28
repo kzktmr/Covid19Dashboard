@@ -32,7 +32,8 @@ population  <- read_csv("data/population.csv")
 newlycases  <- read_csv("data/newlycases.csv")
 patients    <- read_csv("data/patients.csv") %>% mutate(untraceable = 1)
 inspection  <- read_csv("data/inspection.csv")
-situation   <- read_csv("data/situation.csv")
+situation   <- read_csv("data/situation.csv") %>%
+  bind_rows(read_csv("data/situation2.csv")) %>% drop_na()
 sickbeds    <- read_csv("data/sickbeds.csv") %>% 
   add_row(date = Sys.Date()) %>% complete(date = full_seq(date, 1)) %>%
   fill(-date) %>% distinct()
@@ -114,7 +115,7 @@ valueBox(sprintf("%.1f", untraceable_value),
 ### 検査等陽性率
 ```{r}
 positive_ratio <- situation %>% 
-  filter(name == "陽性者数累計（疑似症患者を除く）") %>% 
+  filter(name %in% c("陽性者数累計（疑似症患者を除く）", "陽性者数累計")) %>% 
   mutate(detected_sum = value - lag(value, 7)) %>% left_join(inspection) %>% 
   mutate(inspected_sum = roll_sumr(inspected, 7),
          value = detected_sum / inspected_sum * 100,
@@ -162,6 +163,7 @@ bed_occupancy <- situation %>%
          increase = value > lag(value),
          date = as.Date(date)) %>% 
   select(date, value, increase) %>% filter(date >= as.Date("2021-01-01"))
+
 bed_occupancy_value = bed_occupancy %>% last_value(value)
 bed_occupancy_increase = bed_occupancy %>% last_value(increase)
 valueBox(sprintf("%.1f", bed_occupancy_value), 

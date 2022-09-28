@@ -58,8 +58,7 @@ write_csv(tmp, "data/newlycases.csv")
 # write_csv(tmp, "data/situation.csv")
 
 #　福岡県　新型コロナウイルス感染症　陽性者の状況 ----
-package_search("新型コロナウイルス感染症 陽性者の状況")
-
+# package_search("新型コロナウイルス感染症 陽性者の状況")
 pac <- package_show("3662c319-d756-4c0d-baee-0597b5c1ec99")
 res <- pac$resources
 url <- res %>% bind_rows() %>% pull(url)
