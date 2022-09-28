@@ -1,4 +1,4 @@
-date,detected,detected_cum,X4,X5,X6,X7,X8,X9,X10,X11,X12,X13,X14,X15,X16,X17
+date,age_00,age_01_04,age_05_09,age_10_19,age_20_29,age_30_39,age_40_49,age_50_59,age_60_64,age_65_69,age_70_79,age_80_89,age_90_,age_unknown,detected,detected_cum
 2020-12-25,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,142,7994
 2020-12-26,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,160,8154
 2020-12-27,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,137,8291
