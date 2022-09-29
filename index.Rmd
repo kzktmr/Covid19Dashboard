@@ -127,8 +127,9 @@ positive_ratio_increase <- positive_ratio %>% last_value(increase)
 valueBox(sprintf("%.1f", positive_ratio_value), 
          caption = "検査等陽性率（％）",
          icon = ifelse(positive_ratio_increase, "fa-arrow-up", "fa-arrow-down"),
-         color = ifelse(positive_ratio_value >= 10, "danger", 
-                        ifelse(positive_ratio_value >= 5, "warning", "primary"))
+         color = ifelse(is.na(positive_ratio_value), "info",
+                        ifelse(positive_ratio_value >= 10, "danger", 
+                               ifelse(positive_ratio_value >= 5, "warning", "primary")))
          )
 ```
 
