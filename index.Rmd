@@ -30,7 +30,7 @@ options(highcharter.lang = hcopts)
 # データ
 population  <- read_csv("data/population.csv")
 newlycases  <- read_csv("data/newlycases.csv")
-patients    <- read_csv("data/patients.csv") %>% mutate(untraceable = 1)
+patients    <- read_csv("data/patients.csv") %>% mutate(untraceable = NA)
 inspection  <- read_csv("data/inspection.csv")
 situation   <- read_csv("data/situation.csv") %>%
   bind_rows(read_csv("data/situation2.csv")) %>% drop_na()
@@ -96,9 +96,10 @@ valueBox(fmt(detected_value),
 ```{r}
 untraceable <- patients %>% 
   group_by(date, untraceable) %>% summarise(n = n()) %>% ungroup() %>% 
-  mutate(untraceable = if_else(is.na(untraceable), "traceable", "untraceable")) %>% 
+  # mutate(untraceable = if_else(is.na(untraceable), "traceable", "untraceable")) %>%
   pivot_wider(names_from = untraceable, values_from = n, values_fill = 0) %>% 
-  complete(date = full_seq(date, 1), fill = list(untraceable = 0, traceable = 0)) %>% 
+  mutate(untraceable = NA_integer_, traceable = NA_integer_) %>% 
+  complete(date = full_seq(date, 1), fill = list(untraceable = NA_integer_, traceable = NA_integer_)) %>% 
   mutate(n = rowSums(across(where(is.numeric))), sum_n = roll_sumr(n, 7),
          sum_u = roll_sumr(untraceable, 7), value = sum_u / sum_n * 100,
          increase = value > lag(value),
@@ -109,7 +110,8 @@ untraceable_increase <- untraceable %>% last_value(increase)
 valueBox(sprintf("%.1f", untraceable_value), 
          caption = "感染経路不明割合（％）",
          icon = ifelse(untraceable_increase, "fa-arrow-up", "fa-arrow-down"),
-         color = ifelse(untraceable_value >= 50, "danger", "primary"))
+         color = ifelse(is.na(untraceable_value), "info", 
+                        ifelse(untraceable_value >= 50, "danger", "primary")))
 ```
 
 ### 検査等陽性率
