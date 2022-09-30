@@ -629,9 +629,17 @@ Rows
 
 ### 重症者数（人）
 ```{r}
-severe_cases %>% 
+severe_cases2 <- 
+  severe_cases %>% mutate(name = "重症者数（厚労省データ）") %>%
+  select(date, name, value = severe_cases)
+severe_cases2 <- 
+  situation %>% select(-weekday) %>% filter(name %in% c("重症者数", "中等症者数")) %>% 
+  mutate(name = if_else(name == "重症者数", "重症者数（福岡県データ）", name)) %>% 
+  bind_rows(severe_cases2) %>% arrange(date)
+severe_cases2 %>% 
   filter(date >= max(date) - 365) %>%
-  hchart("line", hcaes(x = date, y = severe_cases), name = "重傷者数") %>% 
+  hchart("line", hcaes(x = date, y = value, group = name, name = date)) %>% 
+  # hchart("line", hcaes(x = date, y = severe_cases), name = "重傷者数") %>% 
   hc_xAxis(title = FALSE) %>% 
   hc_yAxis(title = FALSE) %>% 
   hc_tooltip(valueSuffix = " 人") %>% 
