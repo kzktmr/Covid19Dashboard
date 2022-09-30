@@ -527,28 +527,30 @@ newlycases %>%
 patients_by_age <- patients %>% 
   filter(age != "調査中", age != "-") %>% 
   group_by(date, age) %>% summarise(n = n()) %>% ungroup() %>% 
-  pivot_wider(names_from = age, values_from = n, values_fill = 0) %>% 
-  complete(date = full_seq(date, 1)) %>%
+  rename(name = age, value = n)
+patients_by_age <-
+  newlycases %>% drop_na() %>% select(-detected, -detected_cum) %>% 
+  pivot_longer(-date) %>% 
+  mutate(name = case_when(name %in% c("age_00", "age_01_04", "age_05_09") ~ "10歳未満",
+                         name == "age_10_19" ~ "10代",
+                         name == "age_20_29" ~ "20代",
+                         name == "age_30_39" ~ "30代",
+                         name == "age_40_49" ~ "40代",
+                         name == "age_50_59" ~ "50代",
+                         name %in% c("age_60_64", "age_65_69") ~ "60代",
+                         name == "age_70_79" ~ "70代",
+                         name == "age_80_89" ~ "80代",
+                         name == "age_90_" ~ "90代以上",
+                         TRUE ~ NA_character_)) %>% drop_na() %>% 
+  group_by(date, name) %>% summarise(value = sum(value)) %>% ungroup() %>% 
+  bind_rows(patients_by_age) %>% arrange(date) %>% 
+  pivot_wider(values_fill = 0) %>% 
+  complete(date = full_seq(date, 1)) %>% 
   mutate(across(-date, replace_na, 0)) %>% 
   mutate(across(-date, roll_sumr, n = 7)) %>% 
-  filter(date >= max(date) - 365) %>% pivot_longer(-date, names_to = "age", values_to = "n")
-patients_by_age <- newlycases %>% drop_na() %>% select(-detected, -detected_cum) %>% 
-  pivot_longer(-date, names_to = "age", values_to = "n") %>% 
-  mutate(age = case_when(age %in% c("age_00", "age_01_04", "age_05_09") ~ "10歳未満",
-                          age == "age_10_19" ~ "10代",
-                          age == "age_20_29" ~ "20代",
-                          age == "age_30_39" ~ "30代",
-                          age == "age_40_49" ~ "40代",
-                          age == "age_50_59" ~ "50代",
-                          age %in% c("age_60_64", "age_65_69") ~ "60代",
-                          age == "age_70_79" ~ "70代",
-                          age == "age_80_89" ~ "80代",
-                          age == "age_90_" ~ "90代",
-                          TRUE ~ NA_character_)) %>% drop_na() %>% 
-  group_by(date, age) %>% summarise(n = sum(n)) %>% ungroup() %>% 
-  bind_rows(patients_by_age) %>% arrange(date)
+  filter(date >= max(date) - 365) %>% pivot_longer(-date)
 patients_by_age %>% 
-  pivot_wider(names_from = age, values_from = n, values_fill = 0) %>% 
+  pivot_wider(values_fill = 0) %>% 
   rowwise() %>% mutate(合計 = sum(c_across(-date))) %>% 
   complete(date = full_seq(date, 1)) %>% 
   mutate(across(-date, replace_na, 0)) %>% 
@@ -754,14 +756,7 @@ Rows
 
 ### 年代別10万人あたり週間新規感染者数（人）
 ```{r}
-patients %>% 
-  filter(age != "調査中", age != "-") %>% 
-  group_by(date, age) %>% summarise(n = n()) %>% ungroup() %>% 
-  pivot_wider(names_from = age, values_from = n, values_fill = 0) %>% 
-  complete(date = full_seq(date, 1)) %>%
-  mutate(across(-date, replace_na, 0)) %>% 
-  mutate(across(-date, roll_sumr, n = 7)) %>% 
-  filter(date >= max(date) - 365) %>% pivot_longer(-date) %>% 
+patients_by_age %>% 
   left_join(age_pop, by = c("name" = "age10")) %>% 
   mutate(age = factor(name, levels = c("10歳未満", str_c(seq(10, 80, 10), "代"), "90代以上"), labels = str_c(seq(0, 90, 10), "~", c(seq(9, 89, 10), "")))) %>% 
   mutate(value = value * 1e5 / population) %>% arrange(date, age) %>% 
