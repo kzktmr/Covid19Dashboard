@@ -406,7 +406,7 @@ vaccination %>%
   group_by(date, age, status) %>% summarise(count = sum(count)) %>% ungroup() %>% 
   mutate(date = as.Date(date), 
          age = factor(age, labels = c("65歳未満", "65歳以上", "年齢不明")),
-         status = factor(status, labels = c("1回目", "2回目", "3回目", "4回目"))) %>% 
+         status = factor(status, labels = c("1回目", "2回目", "3回目", "4回目", "5回目"))) %>% 
   unite("status", age:status, sep = "") %>% 
   filter(date >= max(date) - 365) %>%
   hchart("column", hcaes(x = date, y = count, group = status), 
