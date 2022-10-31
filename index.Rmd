@@ -348,7 +348,7 @@ vaccination_rate <-
   mutate(ratio =  cum_sum/ pop * 100) %>% ungroup() %>% 
   mutate(date = as.Date(date), 
          age = factor(age, labels = c("高齢", "全体"), levels = c("65-", "TTL")),
-         status = factor(status, labels = c("1回目", "2回目", "3回目", "4回目"))) %>% 
+         status = factor(status, labels = c("1回目", "2回目", "3回目", "4回目", "5回目"))) %>% 
   unite("status", age:status, sep = "") %>% 
   arrange(date) 
 ```
@@ -356,46 +356,46 @@ vaccination_rate <-
 Row
 -----------------------------------------------------------------------
 
-### 接種率（高齢者，2回目）
-```{r}
-elder_1st <- vaccination_rate %>% 
-  filter(status == "高齢2回目") %>% last_value(ratio)
-gauge(sprintf("%.1f", elder_1st), min = 0, max = 100, symbol = '%')
-```
-
 ### 接種率（高齢者，3回目）
 ```{r}
-elder_2nd <- vaccination_rate %>% 
+elder_3rd <- vaccination_rate %>% 
   filter(status == "高齢3回目") %>% last_value(ratio)
-gauge(sprintf("%.1f", elder_2nd), min = 0, max = 100, symbol = '%')
+gauge(sprintf("%.1f", elder_3rd), min = 0, max = 100, symbol = '%')
 ```
 
 ### 接種率（高齢者，4回目）
 ```{r}
-elder_3rd <- vaccination_rate %>% 
+elder_4th <- vaccination_rate %>% 
   filter(status == "高齢4回目") %>% last_value(ratio)
-gauge(sprintf("%.1f", elder_3rd), min = 0, max = 100, symbol = '%')
+gauge(sprintf("%.1f", elder_4th), min = 0, max = 100, symbol = '%')
 ```
 
-### 接種率（全人口，2回目）
+### 接種率（高齢者，5回目）
 ```{r}
-total_1st <- vaccination_rate %>% 
-  filter(status == "全体2回目") %>% last_value(ratio)
-gauge(sprintf("%.1f", total_1st), min = 0, max = 100, symbol = '%')
+elder_5th <- vaccination_rate %>% 
+  filter(status == "高齢5回目") %>% last_value(ratio)
+gauge(sprintf("%.1f", elder_5th), min = 0, max = 100, symbol = '%')
 ```
 
 ### 接種率（全人口，3回目）
 ```{r}
-total_2nd <- vaccination_rate %>% 
+total_3rd <- vaccination_rate %>% 
   filter(status == "全体3回目") %>% last_value(ratio)
-gauge(sprintf("%.1f", total_2nd), min = 0, max = 100, symbol = '%')
+gauge(sprintf("%.1f", total_3rd), min = 0, max = 100, symbol = '%')
 ```
 
 ### 接種率（全人口，4回目）
 ```{r}
-total_3rd <- vaccination_rate %>% 
+total_4th <- vaccination_rate %>% 
   filter(status == "全体4回目") %>% last_value(ratio)
-gauge(sprintf("%.1f", total_3rd), min = 0, max = 100, symbol = '%')
+gauge(sprintf("%.1f", total_4th), min = 0, max = 100, symbol = '%')
+```
+
+### 接種率（全人口，5回目）
+```{r}
+total_5th <- vaccination_rate %>% 
+  filter(status == "全体5回目") %>% last_value(ratio)
+gauge(sprintf("%.1f", total_5th), min = 0, max = 100, symbol = '%')
 ```
 
 Row
