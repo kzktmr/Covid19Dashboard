@@ -45,7 +45,7 @@ region      <- read_csv("data/fukuoka_region.csv")
 map         <- geojson_read("data/map.geojson")
 
 # 定数
-pref_pop <- population %>% filter(name == "県") %>% pull()
+pref_pop <- 5123371
 age_pop2 <- tibble(age = c("TTL", "65-"), pop = c(5123371, 1405740))
 
 # 関数
@@ -185,14 +185,15 @@ hospital_ratio <- situation %>%
   mutate(value = `入院中の者の数` / (`入院中の者の数` + `宿泊療養中の者の数` + `自宅待機等の者の数`) * 100,
          increase = value > lag(value),
          date = as.Date(date)) %>% 
-  filter(date >= as.Date("2021-01-01")) %>% na.omit()
+  filter(date >= as.Date("2021-01-01")) #%>% na.omit()
 hospital_ratio_value <- hospital_ratio %>% last_value(value)
 hospital_ratio_increase <- hospital_ratio %>% last_value(increase)
 valueBox(sprintf("%.1f", hospital_ratio_value), 
          caption = "入院率（％）",
          icon = ifelse(hospital_ratio_increase, "fa-arrow-up", "fa-arrow-down"),
-         color = ifelse(hospital_ratio_value <= 25, "danger", 
-                        ifelse(hospital_ratio_value <= 40, "warning", "primary"))
+         color = ifelse(is.na(hospital_ratio_value), "info",
+                        ifelse(hospital_ratio_value <= 25, "danger", 
+                          ifelse(hospital_ratio_value <= 40, "warning", "primary")))
          )
 ```
 
@@ -204,6 +205,7 @@ Row
 ```{r}
 detected %>% filter(date >= max(date) - 365) %>% 
   hchart("line", hcaes(x = date, y = value)) %>% 
+  hc_title(text = "10万人あたり週間新規感染者数（人）", align = "left") %>% 
   hc_yAxis(title = FALSE,
            labels = list(
              format = "{value:,.0f}"
@@ -228,6 +230,7 @@ detected %>% filter(date >= max(date) - 365) %>%
 ```{r}
 untraceable %>% filter(date >= max(date) - 365) %>%
   hchart("line", hcaes(x = date, y = value,)) %>% 
+  hc_title(text = "感染経路不明割合（％）", align = "left") %>% 
   hc_yAxis(title = FALSE,
            min = 0,
            plotLines = list(
@@ -249,6 +252,7 @@ untraceable %>% filter(date >= max(date) - 365) %>%
 ```{r}
 positive_ratio %>% filter(date >= max(date) - 365) %>%
   hchart("line", hcaes(x = date, y = value,)) %>% 
+  hc_title(text = "検査等陽性率（％）", align = "left") %>% 
   hc_yAxis(title = FALSE,
            plotLines = list(
              list(value = 10, color = "#ff0000", width = 1),
@@ -273,6 +277,7 @@ Row
 ```{r}
 total_patient %>% filter(date >= max(date) - 365) %>%
   hchart("line", hcaes(x = date, y = value,)) %>% 
+  hc_title(text = "10万人あたり療養者数（人）", align = "left") %>% 
   hc_yAxis(title = FALSE,
            labels = list(
              format = "{value:,.0f}"
@@ -296,6 +301,7 @@ total_patient %>% filter(date >= max(date) - 365) %>%
 ```{r}
 bed_occupancy %>% filter(date >= max(date) - 365) %>%
   hchart("line", hcaes(x = date, y = value,)) %>% 
+  hc_title(text = "確保病床使用率（％）", align = "left") %>% 
   hc_yAxis(title = FALSE,
            plotLines = list(
              list(value = 50, color = "#ff0000", width = 1),
@@ -316,6 +322,7 @@ bed_occupancy %>% filter(date >= max(date) - 365) %>%
 ```{r}
 hospital_ratio %>% filter(date >= max(date) - 365) %>%
   hchart("line", hcaes(x = date, y = value,)) %>% 
+  hc_title(text = "入院率（％）", align = "left") %>% 
   hc_yAxis(title = FALSE,
            plotLines = list(
              list(value = 25, color = "#ff0000", width = 1),
