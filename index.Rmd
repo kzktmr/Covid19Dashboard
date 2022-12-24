@@ -200,12 +200,13 @@ valueBox(sprintf("%.1f", hospital_ratio_value),
 Row
 -----------------------------------------------------------------------
 
-### 10万人あたり週間新規感染者数（人）
+###
 
 ```{r}
 detected %>% filter(date >= max(date) - 365) %>% 
   hchart("line", hcaes(x = date, y = value)) %>% 
-  hc_title(text = "10万人あたり週間新規感染者数（人）", align = "left") %>% 
+  hc_title(text = "10万人あたり週間新規感染者数（人）", align = "left",
+           style = list(fontSize = "14px")) %>% 
   hc_yAxis(title = FALSE,
            labels = list(
              format = "{value:,.0f}"
@@ -225,12 +226,13 @@ detected %>% filter(date >= max(date) - 365) %>%
   hc_exporting(enabled = TRUE)
 ```
 
-### 感染経路不明割合（％）
+### 
 
 ```{r}
 untraceable %>% filter(date >= max(date) - 365) %>%
   hchart("line", hcaes(x = date, y = value,)) %>% 
-  hc_title(text = "感染経路不明割合（％）", align = "left") %>% 
+  hc_title(text = "感染経路不明割合（％）", align = "left",
+           style = list(fontSize = "14px")) %>% 
   hc_yAxis(title = FALSE,
            min = 0,
            plotLines = list(
@@ -247,12 +249,13 @@ untraceable %>% filter(date >= max(date) - 365) %>%
   hc_exporting(enabled = TRUE)
 ```
 
-### 検査等陽性率（％）
+###
 
 ```{r}
 positive_ratio %>% filter(date >= max(date) - 365) %>%
   hchart("line", hcaes(x = date, y = value,)) %>% 
-  hc_title(text = "検査等陽性率（％）", align = "left") %>% 
+  hc_title(text = "検査等陽性率（％）", align = "left",
+           style = list(fontSize = "14px")) %>% 
   hc_yAxis(title = FALSE,
            plotLines = list(
              list(value = 10, color = "#ff0000", width = 1),
@@ -272,12 +275,13 @@ positive_ratio %>% filter(date >= max(date) - 365) %>%
 Row
 -----------------------------------------------------------------------
 
-### 10万人あたり療養者数
+###
 
 ```{r}
 total_patient %>% filter(date >= max(date) - 365) %>%
   hchart("line", hcaes(x = date, y = value,)) %>% 
-  hc_title(text = "10万人あたり療養者数（人）", align = "left") %>% 
+  hc_title(text = "10万人あたり療養者数（人）", align = "left",
+           style = list(fontSize = "14px")) %>% 
   hc_yAxis(title = FALSE,
            labels = list(
              format = "{value:,.0f}"
@@ -297,11 +301,12 @@ total_patient %>% filter(date >= max(date) - 365) %>%
   hc_exporting(enabled = TRUE)
 ```
 
-### 確保病床使用率（％）
+###
 ```{r}
 bed_occupancy %>% filter(date >= max(date) - 365) %>%
   hchart("line", hcaes(x = date, y = value,)) %>% 
-  hc_title(text = "確保病床使用率（％）", align = "left") %>% 
+  hc_title(text = "確保病床使用率（％）", align = "left",
+           style = list(fontSize = "14px")) %>% 
   hc_yAxis(title = FALSE,
            plotLines = list(
              list(value = 50, color = "#ff0000", width = 1),
@@ -318,11 +323,12 @@ bed_occupancy %>% filter(date >= max(date) - 365) %>%
   hc_exporting(enabled = TRUE)
 ```
 
-### 入院率（％）
+###
 ```{r}
 hospital_ratio %>% filter(date >= max(date) - 365) %>%
   hchart("line", hcaes(x = date, y = value,)) %>% 
-  hc_title(text = "入院率（％）", align = "left") %>% 
+  hc_title(text = "入院率（％）", align = "left",
+           style = list(fontSize = "14px")) %>% 
   hc_yAxis(title = FALSE,
            plotLines = list(
              list(value = 25, color = "#ff0000", width = 1),
